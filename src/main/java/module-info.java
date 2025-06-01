@@ -7,4 +7,6 @@ module com.hmo_fx.hear_me_out_fx {
 
     opens com.hmo_fx.hear_me_out_fx to javafx.fxml;
     exports com.hmo_fx.hear_me_out_fx;
+    exports music;
+    opens music to javafx.fxml;
 }
