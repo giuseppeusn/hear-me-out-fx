@@ -1,5 +1,10 @@
 name: 🚫 Bloquear alterações no pom.xml
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -37,8 +42,6 @@ jobs:
             🚫 **Atenção:** Este Pull Request contém alterações no arquivo `pom.xml`, o que não é permitido.
 
             Por favor, reverta as alterações no `pom.xml` e envie um novo commit para continuar.
-
-            Se você acredita que esta alteração é necessária, abra uma issue para discutirmos.
 
       - name: ❌ Bloquear o merge se pom.xml foi alterado
         if: env.encontrado == 'true'
