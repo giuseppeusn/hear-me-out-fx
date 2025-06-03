@@ -17,12 +17,12 @@
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
-      <version>4.0.6</version>
+      <version>5.0.6</version>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
-      <version>4.0.6</version>
+      <version>5.0.6</version>
     </dependency>
 <dependency>
       <groupId>org.controlsfx</groupId>
