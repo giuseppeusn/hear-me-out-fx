@@ -8,15 +8,35 @@ jobs:
   check-pom:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: 📥 Fazer checkout do código
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: Check for pom.xml changes
+      - name: 🔍 Verificar alterações no pom.xml
+        id: verificar
         run: |
           echo "🔍 Verificando alterações no pom.xml..."
+          git fetch origin ${{ github.base_ref }}
+
           if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^pom.xml"; then
-            echo "🚫 Erro: o arquivo pom.xml foi alterado, reverta as alterações em um novo commit."
+            echo "encontrado=true" >> $GITHUB_ENV
+            echo "🚫 Erro: o arquivo pom.xml foi alterado. Reverta as alterações antes de prosseguir."
             exit 1
           else
-            echo "✅ Alterações no pom.xml não detectadas."
+            echo "encontrado=false" >> $GITHUB_ENV
+            echo "✅ Nenhuma alteração no pom.xml detectada."
           fi
+
+      - name: 💬 Comentar no PR se houver alteração no pom.xml
+        if: env.encontrado == 'true'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            🚫 **Atenção:** Este Pull Request contém alterações no arquivo `pom.xml`, o que não é permitido.
+
+            Por favor, reverta as alterações no `pom.xml` e envie um novo commit para continuar.
+
+            Se você acredita que esta alteração é necessária, abra uma issue para discutirmos.
