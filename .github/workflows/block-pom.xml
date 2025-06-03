@@ -1,0 +1,22 @@
+name: 🚫 Bloquear alterações no pom.xml
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-pom:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check for pom.xml changes
+        run: |
+          echo "🔍 Verificando alterações no pom.xml..."
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^pom.xml"; then
+            echo "🚫 Erro: o arquivo pom.xml foi alterado, reverta as alterações em um novo commit."
+            exit 1
+          else
+            echo "✅ Alterações no pom.xml não detectadas."
+          fi
