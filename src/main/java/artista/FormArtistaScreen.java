@@ -40,7 +40,7 @@ public class FormArtistaScreen {
         Label title = new Label(artistaToEdit == null ? "Adicionar artista" : "Editar artista");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;");
 
-        VBox formContainer = createForm();
+        ScrollPane formContainer = getScrollPane(createForm());
 
         Button saveButton = new Button(artistaToEdit == null ? "Salvar" : "Atualizar");
         saveButton.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;");
@@ -71,8 +71,8 @@ public class FormArtistaScreen {
     private VBox createForm() {
         VBox container = new VBox(10);
         container.setAlignment(Pos.CENTER);
-
-        String[] labels = {"Nome", "email", "Data de lançamento", "Bio", "nacionalidade", "site" , "genero musical"};
+        container.setStyle("-fx-background-color: #212121;");
+        String[] labels = {"Nome", "email", "Data de lançamento", "Bio", "nacionalidade", "site", "genero musical"};
         String[] prompts = {
                 "Digite o nome do artista/banda",
                 "Digite o email",
@@ -177,7 +177,7 @@ public class FormArtistaScreen {
 
             ManageArtista ma = new ManageArtista();
 
-            if (artista == null) {
+            if (artistaToEdit == null) {
                 ma.addArtista(artista);
                 showAlert("Sucesso", "Artista adicionado com sucesso.", Alert.AlertType.INFORMATION);
             } else {
@@ -217,5 +217,16 @@ public class FormArtistaScreen {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private static ScrollPane getScrollPane(VBox content) {
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setStyle(
+                "-fx-background-color: #212121;"
+        );
+        return scrollPane;
     }
 }

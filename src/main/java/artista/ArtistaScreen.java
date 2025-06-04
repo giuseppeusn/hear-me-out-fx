@@ -141,12 +141,6 @@ public class ArtistaScreen {
         email.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
         email.setWrapText(true);
 
-        Label bio = new Label("Bio: " + artista.getBio());
-        bio.setStyle("-fx-text-fill: gray; -fx-font-size: 12px;");
-
-        Label nacionalidade = new Label("Nacionalidade: " + artista.getNacionalidade());
-        nacionalidade.setStyle("-fx-text-fill: gray; -fx-font-size: 12px;");
-
         String date = new SimpleDateFormat("dd/MM/yyyy").format(artista.getLaunchDate());
         Label launch = new Label("Lançamento: " + date);
         launch.setStyle("-fx-text-fill: gray; -fx-font-size: 12px;");
@@ -192,7 +186,7 @@ public class ArtistaScreen {
         HBox buttons = new HBox(10, editButton, deleteButton);
         buttons.setAlignment(Pos.CENTER);
 
-        card.getChildren().addAll(imageView, name, email, bio, nacionalidade, launch, buttons);
+        card.getChildren().addAll(imageView, name, email, launch, buttons);
 
         return card;
     }
