@@ -1,5 +1,6 @@
 package com.hmo_fx.hear_me_out_fx;
 
+import Album.AlbumScreen;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -63,7 +64,8 @@ public class Main extends Application {
     }
 
     public void showAlbums(Stage stage) {
-        // Implementar lógica para mostrar tela álbuns
+        AlbumScreen albumScreen = new AlbumScreen(stage);
+        albumScreen.show();
     }
 
     public ArrayList<Button> renderButtons(Stage stage) {
