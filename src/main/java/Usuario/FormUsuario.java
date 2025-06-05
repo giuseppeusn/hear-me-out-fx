@@ -3,25 +3,24 @@ package Usuario;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class FormUsuario {
-    private Stage stage;
-    private Scene scene;
-    private TextField nameField;
-    private TextField emailField;
-    private TextField cpfField;
-    private TextField phoneField;
+import java.util.ArrayList;
+import java.util.List;
 
-    public FormUsuario(Stage stage, Scene scene) {
+public class FormUsuario {
+    private Scene scene;
+    private final Stage stage;
+    private final usuarioPrincipal usuarioToEdit;
+
+    private final List<TextField> textFields = new ArrayList<>();
+
+    public FormUsuario(Stage stage, usuarioPrincipal usuarioToEdit) {
         this.stage = stage;
-        this.scene = scene;
+        this.usuarioToEdit = usuarioToEdit;
     }
 
     public void show() {
@@ -32,12 +31,12 @@ public class FormUsuario {
 
         HBox backContainer = createBackButton();
 
-        Label title = new Label("Criar cadastro");
+        Label title = new Label(usuarioToEdit == null ? "Criar cadastro" : "Editar cadastro");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;");
 
-        VBox formContainer = createFormFields();
+        VBox formContainer = createForm();
 
-        Button saveButton = new Button("Salvar");
+        Button saveButton = new Button(usuarioToEdit == null ? "Salvar" : "Atualizar");
         saveButton.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;");
         saveButton.setOnAction(e -> handleSave());
 
@@ -63,57 +62,93 @@ public class FormUsuario {
         return container;
     }
 
-    private VBox createFormFields() {
-        VBox container = new VBox(15);
+    private VBox createForm() {
+        VBox container = new VBox(10);
         container.setAlignment(Pos.CENTER);
-        container.setPadding(new Insets(10));
 
-        nameField = new TextField();
-        emailField = new TextField();
-        cpfField = new TextField();
-        phoneField = new TextField();
+        String[] labels = {"Nome", "Email", "CPF", "Telefone"};
+        String[] prompts = {
+                "Digite o seu nome:",
+                "Digite o seu email (ex: exemplo@gmail.com)",
+                "Digite o CPF:",
+                "Digite o número do telefone:"
+        };
 
-        container.getChildren().addAll(
-                createFormFieldRow("Nome Completo:", nameField, "Digite seu nome"),
-                createFormFieldRow("Email:", emailField, "Digite seu email"),
-                createFormFieldRow("CPF:", cpfField, "Apenas 11 dígitos"),
-                createFormFieldRow("Telefone:", phoneField, "Ex: (XX) XXXXX-XXXX")
-        );
+        for (int i = 0; i < labels.length; i++) {
+            Label label = createLabel(labels[i]);
+            TextField field = createTextField(prompts[i]);
+            textFields.add(field);
+            container.getChildren().addAll(label, field);
+        }
+
+        // Se estiver editando, preencher os dados
+        if (usuarioToEdit != null) {
+            fillFields();
+        }
 
         return container;
     }
 
-    private HBox createFormFieldRow(String labelText, TextField textField, String promptText) {
-        Label label = new Label(labelText);
+    private Label createLabel(String text) {
+        Label label = new Label(text);
         label.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-        label.setMinWidth(120);
+        label.setMaxWidth(Double.MAX_VALUE);
+        label.setAlignment(Pos.CENTER_LEFT);
+        return label;
+    }
 
-        textField.setPromptText(promptText);
-        textField.setPrefWidth(300);
-        textField.setStyle("-fx-background-color: #2e2e2e; -fx-text-fill: white; -fx-border-color: #444;");
+    private TextField createTextField(String prompt) {
+        TextField field = new TextField();
+        field.setPromptText(prompt);
+        field.setStyle(
+                "-fx-padding: 8 12 8 12;" +
+                        "-fx-background-radius: 5;" +
+                        "-fx-border-radius: 5;" +
+                        "-fx-background-color: #2e2e2e;" +
+                        "-fx-text-fill: white;"
+        );
+        return field;
+    }
 
-        HBox row = new HBox(10, label, textField);
-        row.setAlignment(Pos.CENTER);
-        return row;
+    private void fillFields() {
+        textFields.get(0).setText(usuarioToEdit.getNome());
+        textFields.get(1).setText(usuarioToEdit.getEmail());
+        textFields.get(2).setText(usuarioToEdit.getCpf());
+        textFields.get(3).setText(usuarioToEdit.getTelefone());
     }
 
     private void handleSave() {
-        String nome = nameField.getText().trim();
-        String email = emailField.getText().trim();
-        String cpf = cpfField.getText().trim();
-        String telefone = phoneField.getText().trim();
+        if (!validateFields()) return;
 
-        if (nome.isEmpty() || email.isEmpty() || cpf.isEmpty() || telefone.isEmpty()) {
-            showAlert("Erro", "Todos os campos devem ser preenchidos.", Alert.AlertType.ERROR);
-            return;
+        usuarioPrincipal usuario = new usuarioPrincipal(
+                textFields.get(0).getText(),
+                textFields.get(1).getText(),
+                textFields.get(2).getText(),
+                textFields.get(3).getText()
+        );
+
+        if (usuarioToEdit == null) {
+            ManagerUsuario.addUsuario(usuario);
+            showAlert("Sucesso", "Usuário cadastrado com sucesso.", Alert.AlertType.INFORMATION);
+        } else {
+            ManagerUsuario.updateUsuario(usuarioToEdit, usuario);
+            showAlert("Sucesso", "Usuário atualizado com sucesso.", Alert.AlertType.INFORMATION);
         }
 
-        // Aqui você pode salvar ou enviar o objeto para uma classe de controle
-        usuarioPrincipal usuario = new usuarioPrincipal(nome, email, cpf);
-        System.out.println("Usuário cadastrado: " + usuario.getNome());
-
-        showAlert("Sucesso", "Usuário cadastrado com sucesso!", Alert.AlertType.INFORMATION);
         new Usuario(stage).showUser();
+    }
+
+    private boolean validateFields() {
+        String[] fieldNames = {"nome", "email", "CPF", "telefone"};
+
+        for (int i = 0; i < textFields.size(); i++) {
+            if (textFields.get(i).getText().trim().isEmpty()) {
+                showAlert("Erro", "O campo '" + fieldNames[i] + "' é obrigatório.", Alert.AlertType.ERROR);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void showAlert(String title, String message, Alert.AlertType type) {
