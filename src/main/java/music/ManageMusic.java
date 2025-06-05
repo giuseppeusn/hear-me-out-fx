@@ -73,7 +73,10 @@ public class ManageMusic {
     public static void updateMusic(Music oldMusic, Music newMusic) {
         ArrayList<Music> musics = readFile();
         for (int i = 0; i < musics.size(); i++) {
-            if (musics.get(i).equals(oldMusic)) {
+            String musicName = musics.get(i).getName();
+            String musicArtist = musics.get(i).getArtist();
+
+            if (musicName.equalsIgnoreCase(oldMusic.getName()) && musicArtist.equalsIgnoreCase(oldMusic.getArtist())) {
                 musics.set(i, newMusic);
                 saveFile(musics);
                 return;
