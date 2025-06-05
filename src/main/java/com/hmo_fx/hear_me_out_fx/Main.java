@@ -1,5 +1,6 @@
 package com.hmo_fx.hear_me_out_fx;
 
+import critico.CriticoTela;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -54,7 +55,8 @@ public class Main extends Application {
     }
 
     public void showCritics(Stage stage) {
-        // Implementar lógica para mostrar tela críticos
+        CriticoTela criticoTela = new CriticoTela(stage);
+        criticoTela.show();
     }
 
     public void showMusic(Stage stage) {
