@@ -74,10 +74,14 @@ public class ManageArtista {
 
     public static void updateArtista(Artista oldArtista, Artista newArtista) {
         ArrayList<Artista> artistas = readFile();
+
         for (int i = 0; i < artistas.size(); i++) {
-            if (artistas.get(i).equals(oldArtista)) {
+            Artista a = artistas.get(i);
+            if (a.getName().equalsIgnoreCase(oldArtista.getName()) &&
+                    a.getEmail().equalsIgnoreCase(oldArtista.getEmail())) {
                 artistas.set(i, newArtista);
                 saveFile(artistas);
+                System.out.println("Artista atualizado com sucesso.");
                 return;
             }
         }

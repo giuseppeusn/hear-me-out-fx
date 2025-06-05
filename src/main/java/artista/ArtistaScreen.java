@@ -142,8 +142,24 @@ public class ArtistaScreen {
         email.setWrapText(true);
 
         String date = new SimpleDateFormat("dd/MM/yyyy").format(artista.getLaunchDate());
-        Label launch = new Label("Lançamento: " + date);
+        Label launch = new Label("Criados: " + date);
         launch.setStyle("-fx-text-fill: gray; -fx-font-size: 12px;");
+
+        Label bio = new Label("Bio: " + artista.getBio());
+        bio.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
+        bio.setWrapText(true);
+
+        Label nacionalidade = new Label("Nacionalidade: " + artista.getEmail());
+        nacionalidade.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
+        nacionalidade.setWrapText(true);
+
+        Label site = new Label("Site: " + artista.getEmail());
+        site.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
+        site.setWrapText(true);
+
+        Label generoMusical = new Label("Genero musical: " + artista.getEmail());
+        generoMusical.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
+        generoMusical.setWrapText(true);
 
         Button editButton = new Button("Editar");
         editButton.setStyle(
@@ -186,7 +202,7 @@ public class ArtistaScreen {
         HBox buttons = new HBox(10, editButton, deleteButton);
         buttons.setAlignment(Pos.CENTER);
 
-        card.getChildren().addAll(imageView, name, email, launch, buttons);
+        card.getChildren().addAll(imageView, name, email, launch, bio, nacionalidade, site, generoMusical, buttons);
 
         return card;
     }
