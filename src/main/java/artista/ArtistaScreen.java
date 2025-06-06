@@ -1,4 +1,4 @@
-package music;
+package artista;
 
 import com.hmo_fx.hear_me_out_fx.Main;
 import javafx.geometry.Insets;
@@ -14,11 +14,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class MusicScreen {
+public class ArtistaScreen {
     Scene scene;
     Stage stage;
 
-    public MusicScreen(Stage stage) {
+    public ArtistaScreen(Stage stage) {
         this.stage = stage;
     }
 
@@ -46,13 +46,13 @@ public class MusicScreen {
         backContainer.setAlignment(Pos.CENTER_LEFT);
         backContainer.setMaxWidth(Double.MAX_VALUE);
 
-        Label lbl = new Label("Músicas");
+        Label lbl = new Label("Artista");
         lbl.setStyle("-fx-text-fill: white; -fx-font-size: 30px; -fx-font-weight: bold;");
 
-        Button addButton = new Button("Nova música");
+        Button addButton = new Button("Novo artista");
         addButton.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;");
         addButton.setOnAction(e -> {
-            FormMusicScreen formScreen = new FormMusicScreen(stage, null);
+            FormArtistaScreen formScreen = new FormArtistaScreen(stage, null);
             formScreen.show();
         });
 
@@ -60,13 +60,13 @@ public class MusicScreen {
                 backContainer,
                 lbl,
                 addButton,
-                this.showMusicCards()
+                this.showArtistaCards()
         );
 
         this.scene = new Scene(root, 600, 600);
     }
 
-    private ScrollPane showMusicCards() {
+    private ScrollPane showArtistaCards() {
         FlowPane cardsContainer = new FlowPane();
         cardsContainer.setHgap(15);
         cardsContainer.setVgap(15);
@@ -75,10 +75,10 @@ public class MusicScreen {
         cardsContainer.setAlignment(Pos.CENTER);
         cardsContainer.setStyle("-fx-background-color: #212121;");
 
-        ArrayList<Music> musics = ManageMusic.readFile();
+        ArrayList<Artista> artistas = ManageArtista.readFile();
 
-        for (Music music : musics) {
-            cardsContainer.getChildren().add(createMusicCard(music));
+        for (Artista artista : artistas) {
+            cardsContainer.getChildren().add(createArtistaCard(artista));
         }
 
         return getScrollPane(cardsContainer);
@@ -99,7 +99,7 @@ public class MusicScreen {
         return scrollPane;
     }
 
-    private VBox createMusicCard(Music music) {
+    private VBox createArtistaCard(Artista artista) {
         VBox card = new VBox(10);
         card.setAlignment(Pos.TOP_CENTER);
         card.setPadding(new Insets(10));
@@ -113,15 +113,15 @@ public class MusicScreen {
         ImageView imageView = new ImageView();
         try {
             Image image;
-            if (music.getCover() != null && !music.getCover().isEmpty()) {
-                if (music.getCover().startsWith("http") || music.getCover().startsWith("file:/")) {
-                    image = new Image(music.getCover(), false);
+            if (artista.getCover() != null && !artista.getCover().isEmpty()) {
+                if (artista.getCover().startsWith("http") || artista.getCover().startsWith("file:/")) {
+                    image = new Image(artista.getCover(), false);
                 } else {
-                    image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(music.getCover())));
+                    image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(artista.getCover())));
                 }
-                if (image.isError()) throw new Exception("Erro ao carregar imagem");
+                if (image.isError()) throw new Exception("Erro ao carregar a imagem");
             } else {
-                throw new Exception("Caminho de imagem vazio");
+                throw new Exception("Caminho da imagem vazio");
             }
             imageView.setImage(image);
         } catch (Exception e) {
@@ -133,23 +133,33 @@ public class MusicScreen {
         imageView.setFitHeight(150);
         imageView.setPreserveRatio(true);
 
-        Label name = new Label(music.getName());
+        Label name = new Label(artista.getName());
         name.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
         name.setWrapText(true);
 
-        Label artist = new Label(music.getArtist());
-        artist.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
-        artist.setWrapText(true);
+        Label email = new Label("Email: " + artista.getEmail());
+        email.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
+        email.setWrapText(true);
 
-        Label album = new Label("Álbum: " + music.getAlbum());
-        album.setStyle("-fx-text-fill: gray; -fx-font-size: 12px;");
-
-        Label duration = new Label("Duração: " + music.getDuration());
-        duration.setStyle("-fx-text-fill: gray; -fx-font-size: 12px;");
-
-        String date = new SimpleDateFormat("dd/MM/yyyy").format(music.getLaunchDate());
-        Label launch = new Label("Lançamento: " + date);
+        String date = new SimpleDateFormat("dd/MM/yyyy").format(artista.getLaunchDate());
+        Label launch = new Label("Criados: " + date);
         launch.setStyle("-fx-text-fill: gray; -fx-font-size: 12px;");
+
+        Label bio = new Label("Bio: " + artista.getBio());
+        bio.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
+        bio.setWrapText(true);
+
+        Label nacionalidade = new Label("Nacionalidade: " + artista.getEmail());
+        nacionalidade.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
+        nacionalidade.setWrapText(true);
+
+        Label site = new Label("Site: " + artista.getEmail());
+        site.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
+        site.setWrapText(true);
+
+        Label generoMusical = new Label("Genero musical: " + artista.getEmail());
+        generoMusical.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
+        generoMusical.setWrapText(true);
 
         Button editButton = new Button("Editar");
         editButton.setStyle(
@@ -159,7 +169,7 @@ public class MusicScreen {
                         "-fx-font-weight: bold;"
         );
         editButton.setOnAction(e -> {
-            FormMusicScreen editScreen = new FormMusicScreen(stage, music);
+            FormArtistaScreen editScreen = new FormArtistaScreen(stage, artista);
             editScreen.show();
         });
 
@@ -182,7 +192,7 @@ public class MusicScreen {
 
             alert.showAndWait().ifPresent(response -> {
                 if (response == yesButton) {
-                    ManageMusic.removeMusic(music.getName(), music.getArtist());
+                    ManageArtista.removeArtista(artista.getName(), artista.getEmail());
                     showAlert("Sucesso", "Música excluída com sucesso.", Alert.AlertType.INFORMATION);
                     refreshScreen();
                 }
@@ -192,7 +202,7 @@ public class MusicScreen {
         HBox buttons = new HBox(10, editButton, deleteButton);
         buttons.setAlignment(Pos.CENTER);
 
-        card.getChildren().addAll(imageView, name, artist, album, duration, launch, buttons);
+        card.getChildren().addAll(imageView, name, email, launch, bio, nacionalidade, site, generoMusical, buttons);
 
         return card;
     }
@@ -206,9 +216,7 @@ public class MusicScreen {
     }
 
     private void refreshScreen() {
-        MusicScreen musicScreen = new MusicScreen(stage);
-        musicScreen.show();
+        ArtistaScreen artistaScreen = new ArtistaScreen(stage);
+        artistaScreen.show();
     }
-
-
 }
