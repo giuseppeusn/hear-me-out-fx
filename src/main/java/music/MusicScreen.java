@@ -59,14 +59,24 @@ public class MusicScreen {
         root.getChildren().addAll(
                 backContainer,
                 lbl,
-                addButton,
-                this.showMusicCards()
+                addButton
         );
+
+        ArrayList<Music> musics = ManageMusic.readFile();
+
+        if (musics.isEmpty()) {
+            Label lbl2 = new Label("Nenhuma música encontrada");
+            lbl2.setStyle("-fx-text-fill: white; -fx-font-size: 20px;");
+
+            root.getChildren().add(lbl2);
+        } else {
+            root.getChildren().add(this.showMusicCards(musics));
+        }
 
         this.scene = new Scene(root, 600, 600);
     }
 
-    private ScrollPane showMusicCards() {
+    private ScrollPane showMusicCards(ArrayList<Music> musics) {
         FlowPane cardsContainer = new FlowPane();
         cardsContainer.setHgap(15);
         cardsContainer.setVgap(15);
@@ -74,8 +84,6 @@ public class MusicScreen {
         cardsContainer.setPrefWidth(480);
         cardsContainer.setAlignment(Pos.CENTER);
         cardsContainer.setStyle("-fx-background-color: #212121;");
-
-        ArrayList<Music> musics = ManageMusic.readFile();
 
         for (Music music : musics) {
             cardsContainer.getChildren().add(createMusicCard(music));
