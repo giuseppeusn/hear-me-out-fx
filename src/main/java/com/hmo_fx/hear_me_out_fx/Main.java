@@ -1,5 +1,6 @@
 package com.hmo_fx.hear_me_out_fx;
 
+import artista.ArtistaScreen;
 import Usuario.Usuario;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -52,7 +53,8 @@ public class Main extends Application {
     }
 
     public void showArtists(Stage stage) {
-        // Implementar lógica para mostrar tela artistas
+        ArtistaScreen artistaScreen = new ArtistaScreen(stage);
+        artistaScreen.show();
     }
 
     public void showCritics(Stage stage) {
