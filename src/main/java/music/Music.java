@@ -82,9 +82,4 @@ public class Music implements Serializable {
             return new Date();
         }
     }
-
-    @Override
-    public String toString() {
-        return "Música" + name + ", Duração=" + duration + ", Lançamento" + launchDate + ", Capa" + cover + ", Artista" + artist + ", Album" + album;
-    }
 }

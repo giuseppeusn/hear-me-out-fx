@@ -1,6 +1,7 @@
 package com.hmo_fx.hear_me_out_fx;
 
 import artista.ArtistaScreen;
+import Usuario.Usuario;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -47,7 +48,8 @@ public class Main extends Application {
 
 
     public void showUsers(Stage stage) {
-        // Implementar lógica para mostrar tela usuários
+        Usuario usuario = new Usuario(stage);
+        usuario.showUser();
     }
 
     public void showArtists(Stage stage) {
