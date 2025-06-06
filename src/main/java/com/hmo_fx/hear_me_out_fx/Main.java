@@ -1,7 +1,5 @@
 package com.hmo_fx.hear_me_out_fx;
 
-import artista.ArtistaScreen;
-import Usuario.Usuario;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,6 +10,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import music.MusicScreen;
+import critico.CriticoTela;
+import artista.ArtistaScreen;
+import Usuario.Usuario;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,7 +59,8 @@ public class Main extends Application {
     }
 
     public void showCritics(Stage stage) {
-        // Implementar lógica para mostrar tela críticos
+        CriticoTela criticoTela = new CriticoTela(stage);
+        criticoTela.show();
     }
 
     public void showMusic(Stage stage) {
