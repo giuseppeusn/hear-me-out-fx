@@ -10,31 +10,23 @@ import javafx.scene.layout.HBox;  // Painel que organiza os filhos horizontalmen
 import javafx.scene.layout.VBox;  // Painel que organiza os filhos verticalmente.
 import javafx.stage.Stage;    // A janela principal da aplicação JavaFX.
 
-// Imports para manipulação de datas e listas.
-// import java.text.ParseException; // Não está sendo usado diretamente, pois DatePicker lida com o parse.
-import java.text.SimpleDateFormat; // Para formatar Datas para String (ex: para exibir).
+
 import java.time.LocalDate;       // Para trabalhar com datas (sem hora/fuso) de forma moderna, usado pelo DatePicker.
 import java.time.ZoneId;        // Para lidar com fusos horários na conversão entre Date e LocalDate.
-import java.util.ArrayList;     // Para a lista 'textFields' (que não está sendo usada corretamente na sua validação).
 import java.util.Date;          // Classe legada para datas, usada no seu modelo 'Critico'.
-import java.util.List;          // Interface para listas, usada por 'textFields'.
 
 public class FormularioCritico { // Declaração da classe do formulário.
     private Scene scene; // Cena para este formulário.
     private final Stage stage; // A janela (Stage) principal onde esta cena será mostrada. 'final' porque é atribuída no construtor e não muda.
     private final Critico criticoToEdit; // Armazena o objeto 'Critico' que está sendo editado. Se for null, significa que estamos adicionando um novo crítico.
 
-    // Campos relacionados à seleção de imagem (parecem ser resquícios do FormMusicScreen e não são usados para Critico).
-    private String coverPath = ""; // Não usado para Critico.
-    private final List<TextField> textFields = new ArrayList<>(); // Esta lista é declarada mas não é populada/usada corretamente no seu método validateFields.
-    private Label coverLabel; // Não usado para Critico.
 
     // Campos de entrada do formulário.
     private TextField txtNome;
     private TextField txtCpf;
     private TextField txtEmail;
     private DatePicker dpDataNascimento; // Controle específico para seleção de datas.
-    private TextField txtBio; // Você está usando TextField para biografia. Um TextArea seria mais apropriado para textos longos.
+    private TextField txtBio;
     private TextField txtSite;
     private TextField txtGenero;
 
@@ -78,7 +70,7 @@ public class FormularioCritico { // Declaração da classe do formulário.
                 saveButton
         );
 
-        this.scene = new Scene(root, 600, 700); // Cria a cena com o painel 'root' e dimensões especificadas.
+        this.scene = new Scene(root, 600, 600); // Cria a cena com o painel 'root' e dimensões especificadas.
         this.stage.setScene(this.scene); // Define esta cena no Stage principal.
     }
 
@@ -146,7 +138,7 @@ public class FormularioCritico { // Declaração da classe do formulário.
         txtSite = createTextField("http://exemplo.com");
         container.getChildren().addAll(lblSite, txtSite);
 
-        // Campo Gênero (Anteriormente "Gênero Principal de Atuação", agora só "Gênero")
+        // Campo Gênero
         Label lblGenero = createLabel("Gênero:"); // Texto do label corrigido.
         txtGenero = createTextField("Ex: Masculino, feminino ou indefinido.");
         container.getChildren().addAll(lblGenero, txtGenero);
@@ -244,8 +236,6 @@ public class FormularioCritico { // Declaração da classe do formulário.
     }
 
     // Método para validar os campos do formulário.
-    // A versão anterior deste método usava uma lista 'textFields' que não era populada.
-    // Esta versão valida cada campo individualmente.
     private boolean validateFields() {
         if (txtNome.getText().trim().isEmpty()) {
             showAlert("Erro de Validação", "O campo 'Nome Completo' é obrigatório.", Alert.AlertType.ERROR);
@@ -306,7 +296,6 @@ public class FormularioCritico { // Declaração da classe do formulário.
         alert.setHeaderText(null); // Não mostra texto de cabeçalho no alerta.
         alert.setContentText(message); // Define a mensagem principal do alerta.
 
-        // Tentativa de estilizar o Alert para tema escuro (pode ter limitações).
         DialogPane dialogPane = alert.getDialogPane();
         if (dialogPane != null) {
             dialogPane.setStyle("-fx-background-color: #2e2e2e;");

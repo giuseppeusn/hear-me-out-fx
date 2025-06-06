@@ -75,19 +75,18 @@ public class CriticoTela { // Declaração da classe da tela de listagem de crí
                 scrollPane // Adiciona a instância de ScrollPane que foi configurada.
         );
 
-        this.scene = new Scene(root, 600, 700); // Cria a cena.
-        // Opcional: this.scene.setFill(javafx.scene.paint.Color.valueOf("#212121")); // Define cor de fundo da cena.
+        this.scene = new Scene(root, 600, 600); // Cria a cena.
     }
 
     // Método que cria o ScrollPane com o FlowPane de cards.
     private ScrollPane showCriticCards() {
         FlowPane cardsContainer = new FlowPane(); // Painel que organiza os cards em um fluxo.
-        cardsContainer.setHgap(15); // Espaçamento horizontal entre cards.
-        cardsContainer.setVgap(15); // Espaçamento vertical entre cards.
-        cardsContainer.setPadding(new Insets(10)); // Padding interno do FlowPane.
-        cardsContainer.setPrefWidth(560); // Largura preferida para o FlowPane (ajuda no cálculo de quebra de linha dos cards).
-        cardsContainer.setAlignment(Pos.CENTER); // Alinha os cards ao centro do FlowPane.
-        cardsContainer.setStyle("-fx-background-color: #212121;"); // Fundo escuro para o FlowPane.
+            cardsContainer.setHgap(15); // Espaçamento horizontal entre cards.
+            cardsContainer.setVgap(15); // Espaçamento vertical entre cards.
+            cardsContainer.setPadding(new Insets(10)); // Padding interno do FlowPane.
+            cardsContainer.setPrefWidth(560); // Largura preferida para o FlowPane (ajuda no cálculo de quebra de linha dos cards).
+            cardsContainer.setAlignment(Pos.CENTER); // Alinha os cards ao centro do FlowPane.
+            cardsContainer.setStyle("-fx-background-color: #212121;"); // Fundo escuro para o FlowPane.
 
         ArrayList<Critico> criticos = ManageCritico.readFile(); // Lê a lista de críticos.
 
@@ -95,7 +94,7 @@ public class CriticoTela { // Declaração da classe da tela de listagem de crí
             Label noCriticsLabel = new Label("Nenhum crítico cadastrado."); // Mostra uma mensagem.
             noCriticsLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
             cardsContainer.getChildren().add(noCriticsLabel);
-            // cardsContainer.setMinHeight(200); // Opcional: define altura mínima se vazio.
+            cardsContainer.setMinHeight(200); // Opcional: define altura mínima se vazio.
         } else { // Se houver críticos...
             for (Critico critico : criticos) { // Itera pela lista.
                 cardsContainer.getChildren().add(createCriticCard(critico)); // Cria um card para cada crítico e adiciona ao FlowPane.
@@ -108,16 +107,13 @@ public class CriticoTela { // Declaração da classe da tela de listagem de crí
     private static ScrollPane getScrollPane(FlowPane cardsContainer) {
         ScrollPane scrollPane = new ScrollPane(cardsContainer); // Cria o ScrollPane com o FlowPane como conteúdo.
         scrollPane.setFitToWidth(true); // Faz o conteúdo (FlowPane) se ajustar à largura do ScrollPane.
-        // scrollPane.setFitToHeight(true); // Já foi aplicado no createUI() à instância específica. Pode ser redundante aqui ou complementar.
-        // Se o problema da barra branca persistir, experimentar comentar/descomentar esta linha aqui.
 
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Nunca mostra a barra de rolagem horizontal.
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED); // Mostra a barra de rolagem vertical apenas quando necessário.
 
         // Estilo para o ScrollPane, garantindo que seja transparente ou tenha o fundo desejado.
         scrollPane.setStyle(
-                // "-fx-background-color: transparent;" + // Opção 1: Totalmente transparente, depende do fundo do VBox root.
-                "-fx-background-color: #212121;" +   // Opção 2: Fundo escuro explícito para o ScrollPane.
+                "-fx-background-color: #212121;" +   // Fundo escuro explícito para o ScrollPane.
                         "-fx-background: #212121;" +         // Redundante com o anterior, mas garante.
                         "-fx-padding: 0;" +
                         "-fx-border-color: transparent;" +
@@ -157,7 +153,7 @@ public class CriticoTela { // Declaração da classe da tela de listagem de crí
         site.setStyle("-fx-text-fill: #b0b0b0; -fx-font-size: 12px;");
         site.setWrapText(true);
 
-        Label genero = new Label("Gênero: " + critico.getGenero()); // Label "Gênero Principal" corrigido para "Gênero".
+        Label genero = new Label("Gênero: " + critico.getGenero());
         genero.setStyle("-fx-text-fill: #b0b0b0; -fx-font-size: 12px;");
         genero.setWrapText(true);
 
@@ -203,8 +199,6 @@ public class CriticoTela { // Declaração da classe da tela de listagem de crí
             alert.setHeaderText("Deseja realmente excluir o crítico \"" + critico.getNome() + "\"?");
             alert.setContentText("Esta ação não pode ser desfeita.");
 
-            // Estilização do Alert (você pode adicionar o código de estilização aqui se quiser).
-
             ButtonType yesButton = new ButtonType("Sim", ButtonBar.ButtonData.OK_DONE); // Botão Sim.
             ButtonType noButton = new ButtonType("Não", ButtonBar.ButtonData.CANCEL_CLOSE); // Botão Não.
             alert.getButtonTypes().setAll(yesButton, noButton); // Adiciona os botões ao alerta.
@@ -236,7 +230,6 @@ public class CriticoTela { // Declaração da classe da tela de listagem de crí
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
-        // Aqui você pode adicionar o código de estilização do Alert que discutimos anteriormente, se desejar.
         alert.showAndWait();
     }
 
@@ -245,4 +238,4 @@ public class CriticoTela { // Declaração da classe da tela de listagem de crí
         CriticoTela criticoTela = new CriticoTela(stage); // Cria uma nova instância da tela.
         criticoTela.show(); // Mostra a nova instância (recarregando os dados).
     }
-} // Fim da classe CriticoTela.
+}

@@ -5,15 +5,9 @@ import java.util.ArrayList; // Importa a classe ArrayList, usada para criar list
 
 public class ManageCritico { // Declaração da classe pública 'ManageCritico'.
     private static final String FILE_PATH = "criticos.dat"; // Campo estático e final: define o nome do arquivo onde os dados dos críticos serão armazenados. 'static' significa que pertence à classe, não a uma instância. 'final' significa que não pode ser alterado.
-    // Uma sugestão anterior era "data/criticos.dat" para salvar numa subpasta. Você está usando "criticos.dat" (salva na raiz do projeto).
 
     // Método estático para salvar uma lista de críticos em arquivo.
-    public static void saveFile(ArrayList<Critico> criticos) { // O parâmetro foi renomeado de 'critico' para 'criticos' (ou listaCriticos) em sugestões anteriores para clareza, mas o seu usa 'critico'.
-        // File dataDir = new File("data"); // Criação de subpasta 'data' (opcional, como nas sugestões).
-        // if (!dataDir.exists()) {
-        //     dataDir.mkdirs();
-        // }
-        // File file = new File(dataDir, FILE_PATH); // Se usasse a subpasta.
+    public static void saveFile(ArrayList<Critico> criticos) {
         File file = new File(FILE_PATH); // Cria um objeto File representando o arquivo no caminho especificado.
 
         try { // Inicia um bloco try-catch para tratar possíveis exceções de I/O (entrada/saída).
@@ -23,7 +17,6 @@ public class ManageCritico { // Declaração da classe pública 'ManageCritico'.
 
             // Cria um ObjectOutputStream, que permite escrever objetos Java em um fluxo de saída (neste caso, um arquivo).
             // FileOutputStream abre um fluxo de escrita para o arquivo.
-            // O try-with-resources (ex: try (ObjectOutputStream oos = ...)) fecharia o 'oos' automaticamente. Você está fechando manualmente.
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
             oos.writeObject(criticos); // Escreve a lista inteira de objetos 'Critico' no arquivo. A lista e os objetos Critico devem ser Serializable.
             oos.close(); // Fecha o ObjectOutputStream, liberando recursos e garantindo que os dados sejam gravados.
@@ -31,7 +24,6 @@ public class ManageCritico { // Declaração da classe pública 'ManageCritico'.
         } catch (FileNotFoundException e) { // Captura a exceção se o arquivo não puder ser aberto/criado para escrita.
             System.out.println("Error (FileNotFoundException em saveFile): " + e.getMessage()); // Imprime uma mensagem de erro.
         } catch (IOException e) { // Captura outras exceções de I/O que podem ocorrer durante a escrita.
-            // throw new RuntimeException(e); // Anteriormente, você lançava uma RuntimeException. Agora está imprimindo.
             System.err.println("Error (IOException em saveFile): " + e.getMessage());
             e.printStackTrace(); // Imprime o rastreamento da pilha da exceção para debugging.
         }
@@ -40,7 +32,6 @@ public class ManageCritico { // Declaração da classe pública 'ManageCritico'.
     // Método estático para ler a lista de críticos do arquivo.
     public static ArrayList<Critico> readFile() {
         ArrayList<Critico> criticos = new ArrayList<>(); // Inicializa uma nova lista vazia para armazenar os críticos lidos.
-        // File file = new File("data", FILE_PATH); // Se usasse a subpasta 'data'.
         File file = new File(FILE_PATH); // Cria um objeto File para o arquivo de dados.
 
         if (file.exists() && file.length() > 0) { // Verifica se o arquivo existe e se não está vazio.
@@ -86,8 +77,6 @@ public class ManageCritico { // Declaração da classe pública 'ManageCritico'.
         // Adicionada verificação de CPF existente (você a tinha no FormularioCritico, mas é bom ter aqui também como salvaguarda).
         if (cpfExists(critico.getCpf())) {
             System.err.println("ManageCritico: CPF " + critico.getCpf() + " já cadastrado. Crítico '" + critico.getNome() + "' não foi adicionado.");
-            // Idealmente, a UI não deveria permitir chegar aqui se o CPF já existe.
-            // Você pode querer que este método lance uma exceção ou retorne um booleano para a UI.
             return;
         }
         ArrayList<Critico> criticos = readFile(); // Lê a lista atual de críticos do arquivo.
@@ -122,7 +111,7 @@ public class ManageCritico { // Declaração da classe pública 'ManageCritico'.
         } else { // Se o crítico não foi encontrado...
             System.out.println("Critico não encontrado para remoção com CPF: " + cpfARemover);
         }
-    } // Fim do método removeCritic. (A chave extra que causava erro aqui foi removida).
+    } 
 
     // Método estático para atualizar um crítico existente.
     public static void updateCritic(Critico criticoAntigo, Critico criticoNovo) {
