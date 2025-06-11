@@ -103,7 +103,7 @@ public class ArtistaScreen {
         VBox card = new VBox(10);
         card.setAlignment(Pos.TOP_CENTER);
         card.setPadding(new Insets(10));
-        card.setPrefSize(180, 300);
+        card.setPrefSize(250, 300);
         card.setStyle(
                 "-fx-background-color: #2e2e2e; " +
                         "-fx-background-radius: 10; " +
