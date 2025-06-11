@@ -2,6 +2,7 @@ package music;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -10,22 +11,30 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public class FormMusicScreen {
     private Scene scene;
     private final Stage stage;
     private final Music musicToEdit;
 
-    private String coverPath = "";
-    private final List<TextField> textFields = new ArrayList<>();
+    private TextField txtNome;
+    private TextField txtDuracao;
+    private DatePicker dpDataLancamento;
+    private TextField txtArtista;
+    private TextField txtAlbum;
     private Label coverLabel;
+    private String coverPath = "";
 
     public FormMusicScreen(Stage stage, Music musicToEdit) {
         this.stage = stage;
         this.musicToEdit = musicToEdit;
+        if (musicToEdit != null) {
+            this.coverPath = musicToEdit.getCover();
+        }
     }
 
     public void show() {
@@ -36,19 +45,24 @@ public class FormMusicScreen {
 
         HBox backContainer = createBackButton();
 
-        Label title = new Label(musicToEdit == null ? "Adicionar música" : "Editar música");
+        Label title = new Label(musicToEdit == null ? "Adicionar Música" : "Editar Música");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;");
 
         VBox formContainer = createForm();
 
+        ScrollPane scrollPane = new ScrollPane(formContainer);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: #212121;");
+        VBox.setVgrow(scrollPane, javafx.scene.layout.Priority.ALWAYS);
+
         Button saveButton = new Button(musicToEdit == null ? "Salvar" : "Atualizar");
-        saveButton.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;");
+        saveButton.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;");
         saveButton.setOnAction(e -> saveMusic());
 
         root.getChildren().addAll(
                 backContainer,
                 title,
-                formContainer,
+                scrollPane,
                 saveButton
         );
 
@@ -69,63 +83,54 @@ public class FormMusicScreen {
 
     private VBox createForm() {
         VBox container = new VBox(10);
-        container.setAlignment(Pos.CENTER);
+        container.setAlignment(Pos.CENTER_LEFT);
+        container.setPadding(new Insets(0, 20, 0, 20));
 
-        String[] labels = {"Nome", "Duração", "Data de lançamento", "Artista", "Álbum"};
-        String[] prompts = {
-                "Digite o nome da música",
-                "Digite a duração (ex: 3:45)",
-                "Digite a data de lançamento (DD/MM/YYYY)",
-                "Digite o nome do artista",
-                "Digite o nome do álbum"
-        };
+        Label lblNome = createLabel("Nome:");
+        txtNome = createTextField("Digite o nome da música");
+        container.getChildren().addAll(lblNome, txtNome);
 
-        for (int i = 0; i < labels.length; i++) {
-            Label label = createLabel(labels[i]);
-            TextField field = createTextField(prompts[i]);
-            textFields.add(field);
-            container.getChildren().addAll(label, field);
-        }
+        Label lblDuracao = createLabel("Duração:");
+        txtDuracao = createTextField("Digite a duração (ex: 3:45)");
+        container.getChildren().addAll(lblDuracao, txtDuracao);
 
-        // Botão para selecionar a capa
-        Button selectCoverButton = new Button("Escolher capa");
-        selectCoverButton.setStyle("-fx-background-color: #4f72b3; -fx-text-fill: white;");
-        selectCoverButton.setOnAction(e -> selectCover());
-
-        coverLabel = new Label("Nenhuma imagem selecionada");
-        coverLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-        coverLabel.setAlignment(Pos.CENTER);
-        coverLabel.setMaxWidth(Double.MAX_VALUE);
-
-        container.getChildren().addAll(selectCoverButton, coverLabel);
-
-        // Se estiver editando, preencher os dados
-        if (musicToEdit != null) {
-            fillFields();
-        }
-
-        return container;
-    }
-
-    private Label createLabel(String text) {
-        Label label = new Label(text);
-        label.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-        label.setMaxWidth(Double.MAX_VALUE);
-        label.setAlignment(Pos.CENTER_LEFT);
-        return label;
-    }
-
-    private TextField createTextField(String prompt) {
-        TextField field = new TextField();
-        field.setPromptText(prompt);
-        field.setStyle(
-                "-fx-padding: 8 12 8 12;" +
+        Label lblDataLancamento = createLabel("Data de Lançamento:");
+        dpDataLancamento = new DatePicker();
+        dpDataLancamento.setPromptText("DD/MM/AAAA");
+        dpDataLancamento.setMaxWidth(Double.MAX_VALUE);
+        dpDataLancamento.setStyle(
+                "-fx-padding: 4 8;" +
                         "-fx-background-radius: 5;" +
                         "-fx-border-radius: 5;" +
                         "-fx-background-color: #2e2e2e;" +
                         "-fx-text-fill: white;"
         );
-        return field;
+        dpDataLancamento.getEditor().setStyle("-fx-text-fill: white; -fx-background-color: #2e2e2e;");
+        container.getChildren().addAll(lblDataLancamento, dpDataLancamento);
+
+        Label lblArtista = createLabel("Artista:");
+        txtArtista = createTextField("Digite o nome do artista");
+        container.getChildren().addAll(lblArtista, txtArtista);
+
+        Label lblAlbum = createLabel("Álbum:");
+        txtAlbum = createTextField("Digite o nome do álbum");
+        container.getChildren().addAll(lblAlbum, txtAlbum);
+
+        Button selectCoverButton = new Button("Escolher Capa");
+        selectCoverButton.setStyle("-fx-background-color: #4f72b3; -fx-text-fill: white;");
+        selectCoverButton.setOnAction(e -> selectCover());
+
+        coverLabel = createLabel("Nenhuma imagem selecionada");
+
+        HBox coverBox = new HBox(10, selectCoverButton, coverLabel);
+        coverBox.setAlignment(Pos.CENTER_LEFT);
+        container.getChildren().add(coverBox);
+
+        if (musicToEdit != null) {
+            fillFields();
+        }
+
+        return container;
     }
 
     private void selectCover() {
@@ -142,30 +147,42 @@ public class FormMusicScreen {
     }
 
     private void fillFields() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        String formattedDate = sdf.format(musicToEdit.getLaunchDate());
+        txtNome.setText(musicToEdit.getName());
+        txtDuracao.setText(musicToEdit.getDuration());
+        txtArtista.setText(musicToEdit.getArtist());
+        txtAlbum.setText(musicToEdit.getAlbum());
 
-        textFields.get(0).setText(musicToEdit.getName());
-        textFields.get(1).setText(musicToEdit.getDuration());
-        textFields.get(2).setText(formattedDate);
-        textFields.get(3).setText(musicToEdit.getArtist());
-        textFields.get(4).setText(musicToEdit.getAlbum());
-        coverPath = musicToEdit.getCover();
-        File file = new File(coverPath);
-        coverLabel.setText(file.getName());
+        if (musicToEdit.getLaunchDate() != null) {
+            dpDataLancamento.setValue(musicToEdit.getLaunchDate().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate());
+        }
+
+        if (coverPath != null && !coverPath.isEmpty()) {
+            try {
+                File file = new File(new java.net.URI(coverPath));
+                coverLabel.setText(file.getName());
+            } catch (Exception e) {
+                coverLabel.setText("Caminho de imagem inválido");
+            }
+        }
     }
 
     private void saveMusic() {
         if (!validateFields()) return;
 
         try {
+            // O construtor de Music espera a data como String
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            String dataLancamentoString = dpDataLancamento.getValue().format(formatter);
+
             Music music = new Music(
-                    textFields.get(0).getText(),
-                    textFields.get(1).getText(),
-                    textFields.get(2).getText(),
+                    txtNome.getText(),
+                    txtDuracao.getText(),
+                    dataLancamentoString,
                     coverPath,
-                    textFields.get(3).getText(),
-                    textFields.get(4).getText()
+                    txtArtista.getText(),
+                    txtAlbum.getText()
             );
 
             ManageMusic mm = new ManageMusic();
@@ -182,26 +199,72 @@ public class FormMusicScreen {
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            showAlert("Erro", "Erro ao salvar. Verifique os campos.", Alert.AlertType.ERROR);
+            showAlert("Erro", "Ocorreu um erro ao salvar. Verifique os campos.\nDetalhe: " + ex.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     private boolean validateFields() {
-        String[] fieldNames = {"nome", "duração", "data de lançamento", "artista", "álbum"};
-
-        for (int i = 0; i < textFields.size(); i++) {
-            if (textFields.get(i).getText().trim().isEmpty()) {
-                showAlert("Erro", "O campo '" + fieldNames[i] + "' é obrigatório.", Alert.AlertType.ERROR);
-                return false;
-            }
-        }
-
-        if (coverPath.isEmpty()) {
-            showAlert("Erro", "Selecione uma imagem de capa.", Alert.AlertType.ERROR);
+        if (txtNome.getText().trim().isEmpty()) {
+            showAlert("Erro de Validação", "O campo 'Nome' é obrigatório.", Alert.AlertType.ERROR);
+            txtNome.requestFocus();
             return false;
         }
-
+        if (txtDuracao.getText().trim().isEmpty()) {
+            showAlert("Erro de Validação", "O campo 'Duração' é obrigatório.", Alert.AlertType.ERROR);
+            txtDuracao.requestFocus();
+            return false;
+        }
+        if (!txtDuracao.getText().trim().matches("^\\d{1,2}:\\d{2}$")) {
+            showAlert("Erro de Validação", "O formato da 'Duração' deve ser 'minutos:segundos' (ex: 3:45).", Alert.AlertType.ERROR);
+            txtDuracao.requestFocus();
+            return false;
+        }
+        if (dpDataLancamento.getValue() == null) {
+            showAlert("Erro de Validação", "O campo 'Data de Lançamento' é obrigatório.", Alert.AlertType.ERROR);
+            dpDataLancamento.requestFocus();
+            return false;
+        }
+        if (dpDataLancamento.getValue().isAfter(LocalDate.now())) {
+            showAlert("Erro de Validação", "A 'Data de Lançamento' não pode ser no futuro.", Alert.AlertType.ERROR);
+            dpDataLancamento.requestFocus();
+            return false;
+        }
+        if (txtArtista.getText().trim().isEmpty()) {
+            showAlert("Erro de Validação", "O campo 'Artista' é obrigatório.", Alert.AlertType.ERROR);
+            txtArtista.requestFocus();
+            return false;
+        }
+        if (txtAlbum.getText().trim().isEmpty()) {
+            showAlert("Erro de Validação", "O campo 'Álbum' é obrigatório.", Alert.AlertType.ERROR);
+            txtAlbum.requestFocus();
+            return false;
+        }
+        if (coverPath == null || coverPath.trim().isEmpty()) {
+            showAlert("Erro de Validação", "É obrigatório selecionar uma imagem de capa.", Alert.AlertType.ERROR);
+            return false;
+        }
         return true;
+    }
+
+    private Label createLabel(String text) {
+        Label label = new Label(text);
+        label.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+        label.setMaxWidth(Double.MAX_VALUE);
+        label.setAlignment(Pos.CENTER_LEFT);
+        return label;
+    }
+
+    private TextField createTextField(String prompt) {
+        TextField field = new TextField();
+        field.setPromptText(prompt);
+        field.setStyle(
+                "-fx-padding: 8 12;" +
+                        "-fx-background-radius: 5;" +
+                        "-fx-border-radius: 5;" +
+                        "-fx-background-color: #2e2e2e;" +
+                        "-fx-text-fill: white;"
+        );
+        return field;
     }
 
     private void showAlert(String title, String message, Alert.AlertType type) {
@@ -209,6 +272,32 @@ public class FormMusicScreen {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+
+        DialogPane dialogPane = alert.getDialogPane();
+        if (dialogPane != null) {
+            dialogPane.setStyle("-fx-background-color: #2e2e2e;");
+            Node contentLabel = dialogPane.lookup(".content.label");
+            if (contentLabel != null) {
+                contentLabel.setStyle("-fx-text-fill: white;");
+            }
+            Node headerPanel = dialogPane.lookup(".header-panel");
+            if (headerPanel != null) {
+                headerPanel.setStyle("-fx-background-color: #212121;");
+                Node headerPanelLabel = headerPanel.lookup(".label");
+                if (headerPanelLabel != null) {
+                    headerPanelLabel.setStyle("-fx-text-fill: white;");
+                }
+            }
+            Node buttonBarNode = dialogPane.lookup(".button-bar");
+            if (buttonBarNode instanceof ButtonBar) {
+                ButtonBar buttonBar = (ButtonBar) buttonBarNode;
+                buttonBar.getButtons().forEach(b -> {
+                    b.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;");
+                    b.setOnMouseEntered(e -> b.setStyle("-fx-background-color: #1aa34a; -fx-text-fill: white; -fx-font-weight: bold;"));
+                    b.setOnMouseExited(e -> b.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;"));
+                });
+            }
+        }
         alert.showAndWait();
     }
 }

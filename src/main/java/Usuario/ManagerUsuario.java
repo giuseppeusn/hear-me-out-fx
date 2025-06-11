@@ -2,44 +2,43 @@ package Usuario;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ManagerUsuario {
     private static final String FILE_PATH = "usuarios.dat";
 
     public static void saveFile(ArrayList<usuarioPrincipal> usuarios) {
-        try {
-            File file = new File(FILE_PATH);
-
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
             oos.writeObject(usuarios);
-            oos.close();
-
         } catch (IOException e) {
-            System.out.println("Erro ao salvar: " + e.getMessage());
+            System.out.println("Erro ao salvar o arquivo de usuários: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     public static ArrayList<usuarioPrincipal> readFile() {
         ArrayList<usuarioPrincipal> usuarios = new ArrayList<>();
+        File file = new File(FILE_PATH);
 
-        try {
-            File file = new File(FILE_PATH);
-
-            if (file.exists()) {
-                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_PATH));
+        if (file.exists() && file.length() > 0) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
                 usuarios = (ArrayList<usuarioPrincipal>) ois.readObject();
-                ois.close();
+            } catch (IOException | ClassNotFoundException e) {
+                System.out.println("Erro ao ler o arquivo de usuários: " + e.getMessage());
+                e.printStackTrace();
             }
-
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Erro ao ler: " + e.getMessage());
         }
-
         return usuarios;
+    }
+
+    public static boolean cpfExists(String cpf) {
+        ArrayList<usuarioPrincipal> usuarios = readFile();
+        for (usuarioPrincipal usuario : usuarios) {
+            if (usuario.getCpf().equals(cpf)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void addUsuario(usuarioPrincipal usuario) {
@@ -50,17 +49,8 @@ public class ManagerUsuario {
 
     public static void removeUsuario(String email) {
         ArrayList<usuarioPrincipal> usuarios = readFile();
-
-        usuarioPrincipal found = null;
-        for (usuarioPrincipal u : usuarios) {
-            if (u.getEmail().equalsIgnoreCase(email)) {
-                found = u;
-                break;
-            }
-        }
-
-        if (found != null) {
-            usuarios.remove(found);
+        boolean removed = usuarios.removeIf(u -> u.getEmail().equalsIgnoreCase(email));
+        if (removed) {
             saveFile(usuarios);
             System.out.println("Conta removida com sucesso.");
         } else {
@@ -71,7 +61,7 @@ public class ManagerUsuario {
     public static void updateUsuario(usuarioPrincipal oldUsuario, usuarioPrincipal newUsuario) {
         ArrayList<usuarioPrincipal> usuarios = readFile();
         for (int i = 0; i < usuarios.size(); i++) {
-            if (usuarios.get(i).getEmail().equalsIgnoreCase(oldUsuario.getEmail())) {
+            if (usuarios.get(i).getCpf().equals(oldUsuario.getCpf())) {
                 usuarios.set(i, newUsuario);
                 saveFile(usuarios);
                 return;

@@ -2,6 +2,7 @@ package Album;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -10,22 +11,28 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public class FormAlbumScreen {
     private Scene scene;
     private final Stage stage;
     private final Album albumToEdit;
 
-    private String coverPath = "";
-    private final List<TextField> textFields = new ArrayList<>();
+    private TextField txtNome;
+    private TextField txtArtista;
+    private DatePicker dpDataLancamento;
     private Label coverLabel;
+    private String coverPath = "";
 
     public FormAlbumScreen(Stage stage, Album albumToEdit) {
         this.stage = stage;
         this.albumToEdit = albumToEdit;
+        if (this.albumToEdit != null) {
+            this.coverPath = albumToEdit.getCover();
+        }
     }
 
     public void show() {
@@ -36,19 +43,24 @@ public class FormAlbumScreen {
 
         HBox backContainer = createBackButton();
 
-        Label title = new Label(albumToEdit == null ? "Adicionar álbum" : "Editar álbum");
+        Label title = new Label(albumToEdit == null ? "Adicionar Álbum" : "Editar Álbum");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;");
 
         VBox formContainer = createForm();
 
+        ScrollPane scrollPane = new ScrollPane(formContainer);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: #212121;");
+        VBox.setVgrow(scrollPane, javafx.scene.layout.Priority.ALWAYS);
+
         Button saveButton = new Button(albumToEdit == null ? "Salvar" : "Atualizar");
-        saveButton.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;");
+        saveButton.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;");
         saveButton.setOnAction(e -> saveAlbum());
 
         root.getChildren().addAll(
                 backContainer,
                 title,
-                formContainer,
+                scrollPane,
                 saveButton
         );
 
@@ -68,32 +80,40 @@ public class FormAlbumScreen {
 
     private VBox createForm() {
         VBox container = new VBox(10);
-        container.setAlignment(Pos.CENTER);
+        container.setAlignment(Pos.CENTER_LEFT);
+        container.setPadding(new Insets(0, 20, 0, 20));
 
-        String[] labels = {"Nome", "Artista", "Data de lançamento"};
-        String[] prompts = {
-                "Digite o nome do álbum",
-                "Digite o nome do artista",
-                "Digite a data de lançamento (DD/MM/YYYY)"
-        };
+        Label lblNome = createLabel("Nome do Álbum:");
+        txtNome = createTextField("Digite o nome do álbum");
+        container.getChildren().addAll(lblNome, txtNome);
 
-        for (int i = 0; i < labels.length; i++) {
-            Label label = createLabel(labels[i]);
-            TextField field = createTextField(prompts[i]);
-            textFields.add(field);
-            container.getChildren().addAll(label, field);
-        }
+        Label lblArtista = createLabel("Artista:");
+        txtArtista = createTextField("Digite o nome do artista");
+        container.getChildren().addAll(lblArtista, txtArtista);
 
-        Button selectCoverButton = new Button("Escolher capa");
+        Label lblDataLancamento = createLabel("Data de Lançamento:");
+        dpDataLancamento = new DatePicker();
+        dpDataLancamento.setPromptText("DD/MM/AAAA");
+        dpDataLancamento.setMaxWidth(Double.MAX_VALUE);
+        dpDataLancamento.setStyle(
+                "-fx-padding: 4 8;" +
+                        "-fx-background-radius: 5;" +
+                        "-fx-border-radius: 5;" +
+                        "-fx-background-color: #2e2e2e;" +
+                        "-fx-text-fill: white;"
+        );
+        dpDataLancamento.getEditor().setStyle("-fx-text-fill: white; -fx-background-color: #2e2e2e;");
+        container.getChildren().addAll(lblDataLancamento, dpDataLancamento);
+
+        Button selectCoverButton = new Button("Escolher Capa");
         selectCoverButton.setStyle("-fx-background-color: #4f72b3; -fx-text-fill: white;");
         selectCoverButton.setOnAction(e -> selectCover());
 
-        coverLabel = new Label("Nenhuma imagem selecionada");
-        coverLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-        coverLabel.setAlignment(Pos.CENTER);
-        coverLabel.setMaxWidth(Double.MAX_VALUE);
+        coverLabel = createLabel("Nenhuma imagem selecionada");
 
-        container.getChildren().addAll(selectCoverButton, coverLabel);
+        HBox coverBox = new HBox(10, selectCoverButton, coverLabel);
+        coverBox.setAlignment(Pos.CENTER_LEFT);
+        container.getChildren().add(coverBox);
 
         if (albumToEdit != null) {
             fillFields();
@@ -102,25 +122,85 @@ public class FormAlbumScreen {
         return container;
     }
 
-    private Label createLabel(String text) {
-        Label label = new Label(text);
-        label.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-        label.setMaxWidth(Double.MAX_VALUE);
-        label.setAlignment(Pos.CENTER_LEFT);
-        return label;
+    private void fillFields() {
+        txtNome.setText(albumToEdit.getName());
+        txtArtista.setText(albumToEdit.getArtist());
+
+        if (albumToEdit.getLaunchDate() != null) {
+            Date launchDate = albumToEdit.getLaunchDate();
+            dpDataLancamento.setValue(launchDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+        }
+
+        if (coverPath != null && !coverPath.isEmpty()) {
+            try {
+                File file = new File(new java.net.URI(coverPath));
+                coverLabel.setText(file.getName());
+            } catch (Exception e) {
+                coverLabel.setText("Caminho inválido");
+            }
+        }
     }
 
-    private TextField createTextField(String prompt) {
-        TextField field = new TextField();
-        field.setPromptText(prompt);
-        field.setStyle(
-                "-fx-padding: 8 12 8 12;" +
-                        "-fx-background-radius: 5;" +
-                        "-fx-border-radius: 5;" +
-                        "-fx-background-color: #2e2e2e;" +
-                        "-fx-text-fill: white;"
-        );
-        return field;
+    private void saveAlbum() {
+        if (!validateFields()) return;
+
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            String dataLancamentoString = dpDataLancamento.getValue().format(formatter);
+
+            Album album = new Album(
+                    txtNome.getText(),
+                    txtArtista.getText(),
+                    dataLancamentoString,
+                    coverPath
+            );
+
+            if (albumToEdit == null) {
+                if (ManageAlbum.albumExists(album.getName(), album.getArtist())) {
+                    showAlert("Erro", "Este álbum já está cadastrado para este artista.", Alert.AlertType.ERROR);
+                    return;
+                }
+                ManageAlbum.addAlbum(album);
+                showAlert("Sucesso", "Álbum adicionado com sucesso.", Alert.AlertType.INFORMATION);
+            } else {
+                ManageAlbum.updateAlbum(albumToEdit, album);
+                showAlert("Sucesso", "Álbum atualizado com sucesso.", Alert.AlertType.INFORMATION);
+            }
+
+            new AlbumScreen(stage).show();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            showAlert("Erro", "Ocorreu um erro ao salvar: " + ex.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    private boolean validateFields() {
+        if (txtNome.getText().trim().isEmpty()) {
+            showAlert("Erro de Validação", "O campo 'Nome do Álbum' é obrigatório.", Alert.AlertType.ERROR);
+            txtNome.requestFocus();
+            return false;
+        }
+        if (txtArtista.getText().trim().isEmpty()) {
+            showAlert("Erro de Validação", "O campo 'Artista' é obrigatório.", Alert.AlertType.ERROR);
+            txtArtista.requestFocus();
+            return false;
+        }
+        if (dpDataLancamento.getValue() == null) {
+            showAlert("Erro de Validação", "O campo 'Data de Lançamento' é obrigatório.", Alert.AlertType.ERROR);
+            dpDataLancamento.requestFocus();
+            return false;
+        }
+        if (dpDataLancamento.getValue().isAfter(LocalDate.now())) {
+            showAlert("Erro de Validação", "A 'Data de Lançamento' não pode ser uma data futura.", Alert.AlertType.ERROR);
+            dpDataLancamento.requestFocus();
+            return false;
+        }
+        if (coverPath == null || coverPath.trim().isEmpty()) {
+            showAlert("Erro de Validação", "É obrigatório selecionar uma imagem de capa.", Alert.AlertType.ERROR);
+            return false;
+        }
+        return true;
     }
 
     private void selectCover() {
@@ -136,69 +216,25 @@ public class FormAlbumScreen {
         }
     }
 
-    private void fillFields() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        String formattedDate = sdf.format(albumToEdit.getLaunchDate());
-
-        textFields.get(0).setText(albumToEdit.getName());
-        textFields.get(1).setText(albumToEdit.getArtist());
-        textFields.get(2).setText(formattedDate);
-        coverPath = albumToEdit.getCover();
-
-        if (coverPath != null && !coverPath.isEmpty()) {
-            try {
-                File file = new File(new java.net.URI(coverPath));
-                coverLabel.setText(file.getName());
-            } catch (Exception e) {
-                coverLabel.setText("Caminho inválido ou imagem não encontrada");
-                e.printStackTrace();
-            }
-        }
+    private Label createLabel(String text) {
+        Label label = new Label(text);
+        label.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+        label.setMaxWidth(Double.MAX_VALUE);
+        label.setAlignment(Pos.CENTER_LEFT);
+        return label;
     }
 
-    private void saveAlbum() {
-        if (!validateFields()) return;
-
-        try {
-            Album album = new Album(
-                    textFields.get(0).getText(),
-                    textFields.get(1).getText(),
-                    textFields.get(2).getText(),
-                    coverPath
-            );
-
-            if (albumToEdit == null) {
-                ManageAlbum.addAlbum(album);
-                showAlert("Sucesso", "Álbum adicionado com sucesso.", Alert.AlertType.INFORMATION);
-            } else {
-                ManageAlbum.updateAlbum(albumToEdit, album);
-                showAlert("Sucesso", "Álbum atualizado com sucesso.", Alert.AlertType.INFORMATION);
-            }
-
-            new AlbumScreen(stage).show();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            showAlert("Erro", "Erro ao salvar. Verifique os campos.", Alert.AlertType.ERROR);
-        }
-    }
-
-    private boolean validateFields() {
-        String[] fieldNames = {"nome", "artista", "data de lançamento"};
-
-        for (int i = 0; i < textFields.size(); i++) {
-            if (textFields.get(i).getText().trim().isEmpty()) {
-                showAlert("Erro", "O campo '" + fieldNames[i] + "' é obrigatório.", Alert.AlertType.ERROR);
-                return false;
-            }
-        }
-
-        if (coverPath.isEmpty()) {
-            showAlert("Erro", "Selecione uma imagem de capa.", Alert.AlertType.ERROR);
-            return false;
-        }
-
-        return true;
+    private TextField createTextField(String prompt) {
+        TextField field = new TextField();
+        field.setPromptText(prompt);
+        field.setStyle(
+                "-fx-padding: 8 12;" +
+                        "-fx-background-radius: 5;" +
+                        "-fx-border-radius: 5;" +
+                        "-fx-background-color: #2e2e2e;" +
+                        "-fx-text-fill: white;"
+        );
+        return field;
     }
 
     private void showAlert(String title, String message, Alert.AlertType type) {
@@ -206,6 +242,32 @@ public class FormAlbumScreen {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+
+        DialogPane dialogPane = alert.getDialogPane();
+        if (dialogPane != null) {
+            dialogPane.setStyle("-fx-background-color: #2e2e2e;");
+            Node contentLabel = dialogPane.lookup(".content.label");
+            if (contentLabel != null) {
+                contentLabel.setStyle("-fx-text-fill: white;");
+            }
+            Node headerPanel = dialogPane.lookup(".header-panel");
+            if (headerPanel != null) {
+                headerPanel.setStyle("-fx-background-color: #212121;");
+                Node headerPanelLabel = headerPanel.lookup(".label");
+                if (headerPanelLabel != null) {
+                    headerPanelLabel.setStyle("-fx-text-fill: white;");
+                }
+            }
+            Node buttonBarNode = dialogPane.lookup(".button-bar");
+            if (buttonBarNode instanceof ButtonBar) {
+                ButtonBar buttonBar = (ButtonBar) buttonBarNode;
+                buttonBar.getButtons().forEach(b -> {
+                    b.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;");
+                    b.setOnMouseEntered(e -> b.setStyle("-fx-background-color: #1aa34a; -fx-text-fill: white; -fx-font-weight: bold;"));
+                    b.setOnMouseExited(e -> b.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;"));
+                });
+            }
+        }
         alert.showAndWait();
     }
 }

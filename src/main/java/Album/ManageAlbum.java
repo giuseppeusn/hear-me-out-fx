@@ -30,6 +30,16 @@ public class ManageAlbum {
         return albums;
     }
 
+    public static boolean albumExists(String albumName, String artistName) {
+        ArrayList<Album> albums = readFile();
+        for (Album album : albums) {
+            if (album.getName().equalsIgnoreCase(albumName) && album.getArtist().equalsIgnoreCase(artistName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void addAlbum(Album album) {
         ArrayList<Album> albums = readFile();
         albums.add(album);
@@ -38,16 +48,9 @@ public class ManageAlbum {
 
     public static void removeAlbum(String name, String artist) {
         ArrayList<Album> albums = readFile();
-        Album found = null;
-        for (Album a : albums) {
-            if (a.getName().equalsIgnoreCase(name) && a.getArtist().equalsIgnoreCase(artist)) {
-                found = a;
-                break;
-            }
-        }
+        boolean removed = albums.removeIf(a -> a.getName().equalsIgnoreCase(name) && a.getArtist().equalsIgnoreCase(artist));
 
-        if (found != null) {
-            albums.remove(found);
+        if (removed) {
             saveFile(albums);
             System.out.println("Álbum removido com sucesso.");
         } else {
@@ -58,7 +61,10 @@ public class ManageAlbum {
     public static void updateAlbum(Album oldAlbum, Album newAlbum) {
         ArrayList<Album> albums = readFile();
         for (int i = 0; i < albums.size(); i++) {
-            if (albums.get(i).equals(oldAlbum)) {
+            Album currentAlbum = albums.get(i);
+            if (currentAlbum.getName().equalsIgnoreCase(oldAlbum.getName()) &&
+                    currentAlbum.getArtist().equalsIgnoreCase(oldAlbum.getArtist())) {
+
                 albums.set(i, newAlbum);
                 saveFile(albums);
                 return;
