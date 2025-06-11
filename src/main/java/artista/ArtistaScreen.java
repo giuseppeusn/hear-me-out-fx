@@ -149,15 +149,15 @@ public class ArtistaScreen {
         bio.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
         bio.setWrapText(true);
 
-        Label nacionalidade = new Label("Nacionalidade: " + artista.getEmail());
+        Label nacionalidade = new Label("Nacionalidade: " + artista.getNacionalidade());
         nacionalidade.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
         nacionalidade.setWrapText(true);
 
-        Label site = new Label("Site: " + artista.getEmail());
+        Label site = new Label("Site: " + artista.getSite());
         site.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
         site.setWrapText(true);
 
-        Label generoMusical = new Label("Genero musical: " + artista.getEmail());
+        Label generoMusical = new Label("Genero musical: " + artista.getGeneroMusical());
         generoMusical.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
         generoMusical.setWrapText(true);
 
