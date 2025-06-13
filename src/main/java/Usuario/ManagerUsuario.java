@@ -58,14 +58,18 @@ public class ManagerUsuario {
         }
     }
 
-    public static void updateUsuario(usuarioPrincipal oldUsuario, usuarioPrincipal newUsuario) {
+    public static boolean updateUsuario(usuarioPrincipal oldUsuario, usuarioPrincipal newUsuario) {
         ArrayList<usuarioPrincipal> usuarios = readFile();
+        if (usuarios == null || usuarios.isEmpty()) {
+            return false;
+        }
         for (int i = 0; i < usuarios.size(); i++) {
             if (usuarios.get(i).getCpf().equals(oldUsuario.getCpf())) {
                 usuarios.set(i, newUsuario);
                 saveFile(usuarios);
-                return;
+                return true;
             }
         }
+        return false;
     }
 }

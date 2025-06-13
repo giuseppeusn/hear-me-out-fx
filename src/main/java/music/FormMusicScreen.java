@@ -1,5 +1,6 @@
 package music;
 
+import artista.ArtistaScreen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -191,8 +192,14 @@ public class FormMusicScreen {
                 mm.addMusic(music);
                 showAlert("Sucesso", "Música adicionada com sucesso.", Alert.AlertType.INFORMATION);
             } else {
-                mm.updateMusic(musicToEdit, music);
-                showAlert("Sucesso", "Música atualizada com sucesso.", Alert.AlertType.INFORMATION);
+                boolean updated = mm.updateMusic(musicToEdit, music);
+
+                if (updated) {
+                    showAlert("Sucesso", "Música atualizada com sucesso.", Alert.AlertType.INFORMATION);
+                } else {
+                    showAlert("Erro", "A música não foi atualizada. Arquivo não encontrado.", Alert.AlertType.ERROR);
+                    new MusicScreen(stage).show();
+                }
             }
 
             new MusicScreen(stage).show();

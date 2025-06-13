@@ -58,8 +58,11 @@ public class ManageAlbum {
         }
     }
 
-    public static void updateAlbum(Album oldAlbum, Album newAlbum) {
+    public static boolean updateAlbum(Album oldAlbum, Album newAlbum) {
         ArrayList<Album> albums = readFile();
+        if (albums == null || albums.isEmpty()) {
+            return false;
+        }
         for (int i = 0; i < albums.size(); i++) {
             Album currentAlbum = albums.get(i);
             if (currentAlbum.getName().equalsIgnoreCase(oldAlbum.getName()) &&
@@ -67,9 +70,9 @@ public class ManageAlbum {
 
                 albums.set(i, newAlbum);
                 saveFile(albums);
-                return;
+                return true;
             }
         }
-        System.out.println("Álbum não encontrado para atualização.");
+        return false;
     }
 }

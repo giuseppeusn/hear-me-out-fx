@@ -9,21 +9,18 @@ public class ManageArtista {
     private static final String FILE_PATH = "artistas.dat";
 
     public static void saveFile(ArrayList<Artista> artista) {
-        try {
-            File file = new File(FILE_PATH);
+        File file = new File(FILE_PATH);
+        System.out.println("Arquivo existe? " + file.exists());
 
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
             oos.writeObject(artista);
-            oos.close();
-
+            System.out.println("Arquivo salvo com sucesso!");
         } catch (FileNotFoundException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Erro: arquivo não encontrado - " + e.getMessage());
+            e.printStackTrace();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Erro de IO: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -72,8 +69,12 @@ public class ManageArtista {
         }
     }
 
-    public static void updateArtista(Artista oldArtista, Artista newArtista) {
+    public static boolean updateArtista(Artista oldArtista, Artista newArtista) {
         ArrayList<Artista> artistas = readFile();
+
+        if (artistas == null || artistas.isEmpty()) {
+            return false;
+        }
 
         for (int i = 0; i < artistas.size(); i++) {
             Artista a = artistas.get(i);
@@ -82,8 +83,10 @@ public class ManageArtista {
                 artistas.set(i, newArtista);
                 saveFile(artistas);
                 System.out.println("Artista atualizado com sucesso.");
-                return;
+                return true;
             }
         }
+
+        return false;
     }
 }

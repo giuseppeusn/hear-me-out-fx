@@ -1,5 +1,6 @@
 package Album;
 
+import artista.ArtistaScreen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -163,8 +164,14 @@ public class FormAlbumScreen {
                 ManageAlbum.addAlbum(album);
                 showAlert("Sucesso", "Álbum adicionado com sucesso.", Alert.AlertType.INFORMATION);
             } else {
-                ManageAlbum.updateAlbum(albumToEdit, album);
-                showAlert("Sucesso", "Álbum atualizado com sucesso.", Alert.AlertType.INFORMATION);
+                boolean updated = ManageAlbum.updateAlbum(albumToEdit, album);
+
+                if (updated) {
+                    showAlert("Sucesso", "Álbum atualizado com sucesso.", Alert.AlertType.INFORMATION);
+                } else {
+                    showAlert("Erro", "O Álbum não foi atualizado. Arquivo não encontrado.", Alert.AlertType.ERROR);
+                    new AlbumScreen(stage).show();
+                }
             }
 
             new AlbumScreen(stage).show();

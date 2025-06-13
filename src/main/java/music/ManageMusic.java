@@ -70,8 +70,11 @@ public class ManageMusic {
         }
     }
 
-    public static void updateMusic(Music oldMusic, Music newMusic) {
+    public static boolean updateMusic(Music oldMusic, Music newMusic) {
         ArrayList<Music> musics = readFile();
+        if (musics == null || musics.isEmpty()) {
+            return false;
+        }
         for (int i = 0; i < musics.size(); i++) {
             String musicName = musics.get(i).getName();
             String musicArtist = musics.get(i).getArtist();
@@ -79,8 +82,9 @@ public class ManageMusic {
             if (musicName.equalsIgnoreCase(oldMusic.getName()) && musicArtist.equalsIgnoreCase(oldMusic.getArtist())) {
                 musics.set(i, newMusic);
                 saveFile(musics);
-                return;
+                return true;
             }
         }
+        return false;
     }
 }

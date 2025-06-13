@@ -207,8 +207,14 @@ public class FormArtistaScreen {
                 ma.addArtista(artista);
                 showAlert("Sucesso", "Artista adicionado com sucesso.", Alert.AlertType.INFORMATION);
             } else {
-                ma.updateArtista(artistaToEdit, artista);
-                showAlert("Sucesso", "Artista atualizado com sucesso.", Alert.AlertType.INFORMATION);
+                boolean updated = ma.updateArtista(artistaToEdit, artista);
+
+                if (updated) {
+                    showAlert("Sucesso", "Artista atualizado com sucesso.", Alert.AlertType.INFORMATION);
+                } else {
+                    showAlert("Erro", "O artista não foi atualizado. Arquivo não encontrado.", Alert.AlertType.ERROR);
+                    new ArtistaScreen(stage).show();
+                }
             }
 
             new ArtistaScreen(stage).show();

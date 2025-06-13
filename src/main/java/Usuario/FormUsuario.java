@@ -1,5 +1,6 @@
 package Usuario;
 
+import artista.ArtistaScreen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -126,8 +127,14 @@ public class FormUsuario {
                 ManagerUsuario.addUsuario(usuario);
                 showAlert("Sucesso", "Usuário cadastrado com sucesso.", Alert.AlertType.INFORMATION);
             } else {
-                ManagerUsuario.updateUsuario(usuarioToEdit, usuario);
-                showAlert("Sucesso", "Usuário atualizado com sucesso.", Alert.AlertType.INFORMATION);
+                boolean updated = ManagerUsuario.updateUsuario(usuarioToEdit, usuario);
+
+                if (updated) {
+                    showAlert("Sucesso", "Usuário atualizado com sucesso.", Alert.AlertType.INFORMATION);
+                } else {
+                    showAlert("Erro", "O usuário não foi atualizado. Arquivo não encontrado.", Alert.AlertType.ERROR);
+                    new ArtistaScreen(stage).show();
+                }
             }
 
             new Usuario(stage).showUser();
