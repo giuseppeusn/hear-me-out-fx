@@ -217,6 +217,7 @@ public class FormArtistaScreen {
                 }
             }
 
+
             new ArtistaScreen(stage).show();
 
         } catch (Exception ex) {

@@ -202,6 +202,7 @@ public class FormMusicScreen {
                 }
             }
 
+
             new MusicScreen(stage).show();
 
         } catch (Exception ex) {

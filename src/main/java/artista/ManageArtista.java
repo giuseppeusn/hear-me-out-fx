@@ -69,6 +69,7 @@ public class ManageArtista {
         }
     }
 
+
     public static boolean updateArtista(Artista oldArtista, Artista newArtista) {
         ArrayList<Artista> artistas = readFile();
 

@@ -174,6 +174,7 @@ public class FormAlbumScreen {
                 }
             }
 
+
             new AlbumScreen(stage).show();
 
         } catch (Exception ex) {
