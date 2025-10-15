@@ -11,9 +11,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import music.MusicScreen;
-import critico.CriticoTela;
+import critico.CriticoScreen;
 import artista.ArtistaScreen;
-import Usuario.Usuario;
+import Usuario.UsuarioScreen;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,8 +50,8 @@ public class Main extends Application {
 
 
     public void showUsers(Stage stage) {
-        Usuario usuario = new Usuario(stage);
-        usuario.showUser();
+        UsuarioScreen usuarioScreen = new UsuarioScreen(stage);
+        usuarioScreen.showUser();
     }
 
     public void showArtists(Stage stage) {
@@ -60,8 +60,8 @@ public class Main extends Application {
     }
 
     public void showCritics(Stage stage) {
-        CriticoTela criticoTela = new CriticoTela(stage);
-        criticoTela.show();
+        CriticoScreen criticoScreen = new CriticoScreen(stage);
+        criticoScreen.show();
     }
 
     public void showMusic(Stage stage) {

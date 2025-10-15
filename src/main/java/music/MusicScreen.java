@@ -52,7 +52,7 @@ public class MusicScreen {
         Button addButton = new Button("Nova música");
         addButton.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;");
         addButton.setOnAction(e -> {
-            FormMusicScreen formScreen = new FormMusicScreen(stage, null);
+            FormMusic formScreen = new FormMusic(stage, null);
             formScreen.show();
         });
 
@@ -167,7 +167,7 @@ public class MusicScreen {
                         "-fx-font-weight: bold;"
         );
         editButton.setOnAction(e -> {
-            FormMusicScreen editScreen = new FormMusicScreen(stage, music);
+            FormMusic editScreen = new FormMusic(stage, music);
             editScreen.show();
         });
 

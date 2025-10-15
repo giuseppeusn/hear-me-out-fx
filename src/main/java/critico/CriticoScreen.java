@@ -12,12 +12,12 @@ import javafx.stage.Stage;
 import java.text.SimpleDateFormat; // Para formatar datas.
 import java.util.ArrayList;       // Para a lista de críticos.
 
-public class CriticoTela { // Declaração da classe da tela de listagem de críticos.
+public class CriticoScreen { // Declaração da classe da tela de listagem de críticos.
     Scene scene; // A cena desta tela.
     Stage stage; // O Stage principal.
 
     // Construtor.
-    public CriticoTela(Stage stage) {
+    public CriticoScreen(Stage stage) {
         this.stage = stage; // Armazena o Stage.
     }
 
@@ -56,7 +56,7 @@ public class CriticoTela { // Declaração da classe da tela de listagem de crí
         Button addButton = new Button("Novo Crítico");
         addButton.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;");
         addButton.setOnAction(e -> { // Ação ao clicar.
-            FormularioCritico formScreen = new FormularioCritico(stage, null); // Cria a tela de formulário para um novo crítico (null).
+            FormCritico formScreen = new FormCritico(stage, null); // Cria a tela de formulário para um novo crítico (null).
             formScreen.show(); // Mostra a tela de formulário.
         });
 
@@ -182,7 +182,7 @@ public class CriticoTela { // Declaração da classe da tela de listagem de crí
                         "-fx-font-weight: bold;"
         );
         editButton.setOnAction(e -> { // Ação do botão Editar.
-            FormularioCritico editScreen = new FormularioCritico(stage, critico); // Abre o formulário em modo de edição.
+            FormCritico editScreen = new FormCritico(stage, critico); // Abre o formulário em modo de edição.
             editScreen.show();
         });
 
@@ -235,7 +235,7 @@ public class CriticoTela { // Declaração da classe da tela de listagem de crí
 
     // Método para recarregar/atualizar a tela.
     private void refreshScreen() {
-        CriticoTela criticoTela = new CriticoTela(stage); // Cria uma nova instância da tela.
-        criticoTela.show(); // Mostra a nova instância (recarregando os dados).
+        CriticoScreen criticoScreen = new CriticoScreen(stage); // Cria uma nova instância da tela.
+        criticoScreen.show(); // Mostra a nova instância (recarregando os dados).
     }
 }

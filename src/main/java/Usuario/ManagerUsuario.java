@@ -2,12 +2,11 @@ package Usuario;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ManagerUsuario {
     private static final String FILE_PATH = "usuarios.dat";
 
-    public static void saveFile(ArrayList<usuarioPrincipal> usuarios) {
+    public static void saveFile(ArrayList<Usuario> usuarios) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
             oos.writeObject(usuarios);
         } catch (IOException e) {
@@ -16,13 +15,13 @@ public class ManagerUsuario {
         }
     }
 
-    public static ArrayList<usuarioPrincipal> readFile() {
-        ArrayList<usuarioPrincipal> usuarios = new ArrayList<>();
+    public static ArrayList<Usuario> readFile() {
+        ArrayList<Usuario> usuarios = new ArrayList<>();
         File file = new File(FILE_PATH);
 
         if (file.exists() && file.length() > 0) {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-                usuarios = (ArrayList<usuarioPrincipal>) ois.readObject();
+                usuarios = (ArrayList<Usuario>) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 System.out.println("Erro ao ler o arquivo de usuários: " + e.getMessage());
                 e.printStackTrace();
@@ -32,8 +31,8 @@ public class ManagerUsuario {
     }
 
     public static boolean cpfExists(String cpf) {
-        ArrayList<usuarioPrincipal> usuarios = readFile();
-        for (usuarioPrincipal usuario : usuarios) {
+        ArrayList<Usuario> usuarios = readFile();
+        for (Usuario usuario : usuarios) {
             if (usuario.getCpf().equals(cpf)) {
                 return true;
             }
@@ -41,14 +40,14 @@ public class ManagerUsuario {
         return false;
     }
 
-    public static void addUsuario(usuarioPrincipal usuario) {
-        ArrayList<usuarioPrincipal> usuarios = readFile();
+    public static void addUsuario(Usuario usuario) {
+        ArrayList<Usuario> usuarios = readFile();
         usuarios.add(usuario);
         saveFile(usuarios);
     }
 
     public static void removeUsuario(String email) {
-        ArrayList<usuarioPrincipal> usuarios = readFile();
+        ArrayList<Usuario> usuarios = readFile();
         boolean removed = usuarios.removeIf(u -> u.getEmail().equalsIgnoreCase(email));
         if (removed) {
             saveFile(usuarios);
@@ -58,8 +57,8 @@ public class ManagerUsuario {
         }
     }
 
-    public static void updateUsuario(usuarioPrincipal oldUsuario, usuarioPrincipal newUsuario) {
-        ArrayList<usuarioPrincipal> usuarios = readFile();
+    public static void updateUsuario(Usuario oldUsuario, Usuario newUsuario) {
+        ArrayList<Usuario> usuarios = readFile();
         for (int i = 0; i < usuarios.size(); i++) {
             if (usuarios.get(i).getCpf().equals(oldUsuario.getCpf())) {
                 usuarios.set(i, newUsuario);

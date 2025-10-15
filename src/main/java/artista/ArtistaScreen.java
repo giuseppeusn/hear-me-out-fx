@@ -52,7 +52,7 @@ public class ArtistaScreen {
         Button addButton = new Button("Novo artista");
         addButton.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;");
         addButton.setOnAction(e -> {
-            FormArtistaScreen formScreen = new FormArtistaScreen(stage, null);
+            FormArtista formScreen = new FormArtista(stage, null);
             formScreen.show();
         });
 
@@ -169,7 +169,7 @@ public class ArtistaScreen {
                         "-fx-font-weight: bold;"
         );
         editButton.setOnAction(e -> {
-            FormArtistaScreen editScreen = new FormArtistaScreen(stage, artista);
+            FormArtista editScreen = new FormArtista(stage, artista);
             editScreen.show();
         });
 

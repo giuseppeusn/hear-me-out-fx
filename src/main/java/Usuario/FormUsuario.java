@@ -2,24 +2,30 @@ package Usuario;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import com.hmo_fx.hear_me_out_fx.UIHelper; // Padrão Singleton
+import com.hmo_fx.hear_me_out_fx.EntityFactory; // Padrão Simple Factory
+import com.hmo_fx.hear_me_out_fx.PersistenceFacade; // Padrão Facade
+
 public class FormUsuario {
     private Scene scene;
     private final Stage stage;
-    private final usuarioPrincipal usuarioToEdit;
+    private final Usuario usuarioToEdit;
 
     private TextField txtNome;
     private TextField txtEmail;
     private TextField txtCpf;
     private TextField txtTelefone;
 
-    public FormUsuario(Stage stage, usuarioPrincipal usuarioToEdit) {
+    // Acessa a instância única do Singleton UIHelper
+    private final UIHelper ui = UIHelper.getInstance();
+
+    public FormUsuario(Stage stage, Usuario usuarioToEdit) {
         this.stage = stage;
         this.usuarioToEdit = usuarioToEdit;
     }
@@ -60,7 +66,7 @@ public class FormUsuario {
     private HBox createBackButton() {
         Button backButton = new Button("Voltar");
         backButton.setStyle("-fx-background-color: #2e2e2e; -fx-text-fill: white; -fx-font-weight: bold;");
-        backButton.setOnAction(e -> new Usuario(stage).showUser());
+        backButton.setOnAction(e -> new UsuarioScreen(stage).showUser());
 
         HBox container = new HBox(backButton);
         container.setAlignment(Pos.CENTER_LEFT);
@@ -73,24 +79,25 @@ public class FormUsuario {
         container.setAlignment(Pos.CENTER_LEFT);
         container.setPadding(new Insets(0, 20, 0, 20));
 
-        Label lblNome = createLabel("Nome:");
-        txtNome = createTextField("Digite o seu nome");
+        // Usa UIHelper (Singleton)
+        Label lblNome = ui.createLabel("Nome:");
+        txtNome = ui.createTextField("Digite o seu nome");
         container.getChildren().addAll(lblNome, txtNome);
 
-        Label lblEmail = createLabel("Email:");
-        txtEmail = createTextField("Digite o seu email (ex: exemplo@gmail.com)");
+        Label lblEmail = ui.createLabel("Email:");
+        txtEmail = ui.createTextField("Digite o seu email (ex: exemplo@gmail.com)");
         container.getChildren().addAll(lblEmail, txtEmail);
 
-        Label lblCpf = createLabel("CPF:");
-        txtCpf = createTextField("Digite o CPF (apenas números)");
+        Label lblCpf = ui.createLabel("CPF:");
+        txtCpf = ui.createTextField("Digite o CPF (apenas números)");
         if (usuarioToEdit != null) {
             txtCpf.setEditable(false);
             txtCpf.setStyle(txtCpf.getStyle() + "-fx-control-inner-background: #404040;");
         }
         container.getChildren().addAll(lblCpf, txtCpf);
 
-        Label lblTelefone = createLabel("Telefone:");
-        txtTelefone = createTextField("Digite o telefone (com DDD, apenas números)");
+        Label lblTelefone = ui.createLabel("Telefone:");
+        txtTelefone = ui.createTextField("Digite o telefone (com DDD, apenas números)");
         container.getChildren().addAll(lblTelefone, txtTelefone);
 
         if (usuarioToEdit != null) {
@@ -111,7 +118,8 @@ public class FormUsuario {
         if (!validateFields()) return;
 
         try {
-            usuarioPrincipal usuario = new usuarioPrincipal(
+            // Usa EntityFactory (Simple Factory), que delega ao UsuarioBuilder (Builder)
+            Usuario usuario = EntityFactory.createUsuario(
                     txtNome.getText(),
                     txtEmail.getText(),
                     txtCpf.getText(),
@@ -119,117 +127,63 @@ public class FormUsuario {
             );
 
             if (usuarioToEdit == null) {
-                if (ManagerUsuario.cpfExists(usuario.getCpf())) {
-                    showAlert("Erro", "CPF " + usuario.getCpf() + " já cadastrado!", Alert.AlertType.ERROR);
+                // Usa PersistenceFacade (Facade)
+                if (!PersistenceFacade.addEntity(usuario)) {
+                    ui.showAlert("Erro", "CPF " + usuario.getCpf() + " já cadastrado!", Alert.AlertType.ERROR);
                     return;
                 }
-                ManagerUsuario.addUsuario(usuario);
-                showAlert("Sucesso", "Usuário cadastrado com sucesso.", Alert.AlertType.INFORMATION);
+                ui.showAlert("Sucesso", "Usuário cadastrado com sucesso.", Alert.AlertType.INFORMATION);
             } else {
-                ManagerUsuario.updateUsuario(usuarioToEdit, usuario);
-                showAlert("Sucesso", "Usuário atualizado com sucesso.", Alert.AlertType.INFORMATION);
+                // Usa PersistenceFacade (Facade)
+                PersistenceFacade.updateEntity(usuarioToEdit, usuario);
+                ui.showAlert("Sucesso", "Usuário atualizado com sucesso.", Alert.AlertType.INFORMATION);
             }
 
-            new Usuario(stage).showUser();
+            new UsuarioScreen(stage).showUser();
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            showAlert("Erro", "Ocorreu um erro ao salvar.\nDetalhe: " + ex.getMessage(), Alert.AlertType.ERROR);
+            ui.showAlert("Erro", "Ocorreu um erro ao salvar.\nDetalhe: " + ex.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     private boolean validateFields() {
         if (txtNome.getText().trim().isEmpty()) {
-            showAlert("Erro de Validação", "O campo 'Nome' é obrigatório.", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "O campo 'Nome' é obrigatório.", Alert.AlertType.ERROR);
             txtNome.requestFocus();
             return false;
         }
         if (txtEmail.getText().trim().isEmpty()) {
-            showAlert("Erro de Validação", "O campo 'Email' é obrigatório.", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "O campo 'Email' é obrigatório.", Alert.AlertType.ERROR);
             txtEmail.requestFocus();
             return false;
         }
         if (!txtEmail.getText().trim().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-            showAlert("Erro de Validação", "Formato de 'Email' inválido.", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "Formato de 'Email' inválido.", Alert.AlertType.ERROR);
             txtEmail.requestFocus();
             return false;
         }
         if (txtCpf.getText().trim().isEmpty()) {
-            showAlert("Erro de Validação", "O campo 'CPF' é obrigatório.", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "O campo 'CPF' é obrigatório.", Alert.AlertType.ERROR);
             txtCpf.requestFocus();
             return false;
         }
         if (!txtCpf.getText().trim().matches("\\d{11}")) {
-            showAlert("Erro de Validação", "O CPF deve conter 11 dígitos numéricos.", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "O CPF deve conter 11 dígitos numéricos.", Alert.AlertType.ERROR);
             txtCpf.requestFocus();
             return false;
         }
         if (txtTelefone.getText().trim().isEmpty()) {
-            showAlert("Erro de Validação", "O campo 'Telefone' é obrigatório.", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "O campo 'Telefone' é obrigatório.", Alert.AlertType.ERROR);
             txtTelefone.requestFocus();
             return false;
         }
         if (!txtTelefone.getText().trim().matches("\\d{10,11}")) {
-            showAlert("Erro de Validação", "O Telefone deve conter 10 ou 11 dígitos numéricos (com DDD).", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "O Telefone deve conter 10 ou 11 dígitos numéricos (com DDD).", Alert.AlertType.ERROR);
             txtTelefone.requestFocus();
             return false;
         }
 
         return true;
-    }
-
-    private Label createLabel(String text) {
-        Label label = new Label(text);
-        label.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-        label.setMaxWidth(Double.MAX_VALUE);
-        label.setAlignment(Pos.CENTER_LEFT);
-        return label;
-    }
-
-    private TextField createTextField(String prompt) {
-        TextField field = new TextField();
-        field.setPromptText(prompt);
-        field.setStyle(
-                "-fx-padding: 8 12;" +
-                        "-fx-background-radius: 5;" +
-                        "-fx-border-radius: 5;" +
-                        "-fx-background-color: #2e2e2e;" +
-                        "-fx-text-fill: white;"
-        );
-        return field;
-    }
-
-    private void showAlert(String title, String message, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-
-        DialogPane dialogPane = alert.getDialogPane();
-        if (dialogPane != null) {
-            dialogPane.setStyle("-fx-background-color: #2e2e2e;");
-            Node contentLabel = dialogPane.lookup(".content.label");
-            if (contentLabel != null) {
-                contentLabel.setStyle("-fx-text-fill: white;");
-            }
-            Node headerPanel = dialogPane.lookup(".header-panel");
-            if (headerPanel != null) {
-                headerPanel.setStyle("-fx-background-color: #212121;");
-                Node headerPanelLabel = headerPanel.lookup(".label");
-                if (headerPanelLabel != null) {
-                    headerPanelLabel.setStyle("-fx-text-fill: white;");
-                }
-            }
-            Node buttonBarNode = dialogPane.lookup(".button-bar");
-            if (buttonBarNode instanceof ButtonBar) {
-                ButtonBar buttonBar = (ButtonBar) buttonBarNode;
-                buttonBar.getButtons().forEach(b -> {
-                    b.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;");
-                    b.setOnMouseEntered(e -> b.setStyle("-fx-background-color: #1aa34a; -fx-text-fill: white; -fx-font-weight: bold;"));
-                    b.setOnMouseExited(e -> b.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;"));
-                });
-            }
-        }
-        alert.showAndWait();
     }
 }

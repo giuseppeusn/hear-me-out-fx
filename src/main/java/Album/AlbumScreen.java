@@ -52,7 +52,7 @@ public class AlbumScreen {
         Button addButton = new Button("Novo álbum");
         addButton.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;");
         addButton.setOnAction(e -> {
-            FormAlbumScreen formScreen = new FormAlbumScreen(stage, null);
+            FormAlbum formScreen = new FormAlbum(stage, null);
             formScreen.show();
         });
 
@@ -153,7 +153,7 @@ public class AlbumScreen {
                         "-fx-font-weight: bold;"
         );
         editButton.setOnAction(e -> {
-            FormAlbumScreen editScreen = new FormAlbumScreen(stage, album);
+            FormAlbum editScreen = new FormAlbum(stage, album);
             editScreen.show();
         });
 

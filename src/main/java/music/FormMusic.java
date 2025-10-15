@@ -2,7 +2,6 @@ package music;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -13,10 +12,13 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
-public class FormMusicScreen {
+import com.hmo_fx.hear_me_out_fx.UIHelper; // Padrão Singleton
+import com.hmo_fx.hear_me_out_fx.EntityFactory; // Padrão Simple Factory
+import com.hmo_fx.hear_me_out_fx.PersistenceFacade; // Padrão Facade
+
+
+public class FormMusic {
     private Scene scene;
     private final Stage stage;
     private final Music musicToEdit;
@@ -29,7 +31,10 @@ public class FormMusicScreen {
     private Label coverLabel;
     private String coverPath = "";
 
-    public FormMusicScreen(Stage stage, Music musicToEdit) {
+    // Acessa a instância única do Singleton UIHelper
+    private final UIHelper ui = UIHelper.getInstance();
+
+    public FormMusic(Stage stage, Music musicToEdit) {
         this.stage = stage;
         this.musicToEdit = musicToEdit;
         if (musicToEdit != null) {
@@ -86,15 +91,16 @@ public class FormMusicScreen {
         container.setAlignment(Pos.CENTER_LEFT);
         container.setPadding(new Insets(0, 20, 0, 20));
 
-        Label lblNome = createLabel("Nome:");
-        txtNome = createTextField("Digite o nome da música");
+        // Usa UIHelper (Singleton)
+        Label lblNome = ui.createLabel("Nome:");
+        txtNome = ui.createTextField("Digite o nome da música");
         container.getChildren().addAll(lblNome, txtNome);
 
-        Label lblDuracao = createLabel("Duração:");
-        txtDuracao = createTextField("Digite a duração (ex: 3:45)");
+        Label lblDuracao = ui.createLabel("Duração:");
+        txtDuracao = ui.createTextField("Digite a duração (ex: 3:45)");
         container.getChildren().addAll(lblDuracao, txtDuracao);
 
-        Label lblDataLancamento = createLabel("Data de Lançamento:");
+        Label lblDataLancamento = ui.createLabel("Data de Lançamento:");
         dpDataLancamento = new DatePicker();
         dpDataLancamento.setPromptText("DD/MM/AAAA");
         dpDataLancamento.setMaxWidth(Double.MAX_VALUE);
@@ -108,19 +114,19 @@ public class FormMusicScreen {
         dpDataLancamento.getEditor().setStyle("-fx-text-fill: white; -fx-background-color: #2e2e2e;");
         container.getChildren().addAll(lblDataLancamento, dpDataLancamento);
 
-        Label lblArtista = createLabel("Artista:");
-        txtArtista = createTextField("Digite o nome do artista");
+        Label lblArtista = ui.createLabel("Artista:");
+        txtArtista = ui.createTextField("Digite o nome do artista");
         container.getChildren().addAll(lblArtista, txtArtista);
 
-        Label lblAlbum = createLabel("Álbum:");
-        txtAlbum = createTextField("Digite o nome do álbum");
+        Label lblAlbum = ui.createLabel("Álbum:");
+        txtAlbum = ui.createTextField("Digite o nome do álbum");
         container.getChildren().addAll(lblAlbum, txtAlbum);
 
         Button selectCoverButton = new Button("Escolher Capa");
         selectCoverButton.setStyle("-fx-background-color: #4f72b3; -fx-text-fill: white;");
         selectCoverButton.setOnAction(e -> selectCover());
 
-        coverLabel = createLabel("Nenhuma imagem selecionada");
+        coverLabel = ui.createLabel("Nenhuma imagem selecionada");
 
         HBox coverBox = new HBox(10, selectCoverButton, coverLabel);
         coverBox.setAlignment(Pos.CENTER_LEFT);
@@ -172,132 +178,74 @@ public class FormMusicScreen {
         if (!validateFields()) return;
 
         try {
-            // O construtor de Music espera a data como String
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            String dataLancamentoString = dpDataLancamento.getValue().format(formatter);
-
-            Music music = new Music(
+            // Usa EntityFactory (Simple Factory), que delega ao MusicBuilder (Builder)
+            Music music = EntityFactory.createMusic(
                     txtNome.getText(),
                     txtDuracao.getText(),
-                    dataLancamentoString,
+                    dpDataLancamento.getValue(), // LocalDate
                     coverPath,
                     txtArtista.getText(),
                     txtAlbum.getText()
             );
 
-            ManageMusic mm = new ManageMusic();
-
             if (musicToEdit == null) {
-                mm.addMusic(music);
-                showAlert("Sucesso", "Música adicionada com sucesso.", Alert.AlertType.INFORMATION);
+                // Usa PersistenceFacade (Facade)
+                PersistenceFacade.addEntity(music);
+                ui.showAlert("Sucesso", "Música adicionada com sucesso.", Alert.AlertType.INFORMATION);
             } else {
-                mm.updateMusic(musicToEdit, music);
-                showAlert("Sucesso", "Música atualizada com sucesso.", Alert.AlertType.INFORMATION);
+                // Usa PersistenceFacade (Facade)
+                PersistenceFacade.updateEntity(musicToEdit, music);
+                ui.showAlert("Sucesso", "Música atualizada com sucesso.", Alert.AlertType.INFORMATION);
             }
 
             new MusicScreen(stage).show();
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            showAlert("Erro", "Ocorreu um erro ao salvar. Verifique os campos.\nDetalhe: " + ex.getMessage(), Alert.AlertType.ERROR);
+            ui.showAlert("Erro", "Ocorreu um erro ao salvar. Verifique os campos.\nDetalhe: " + ex.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     private boolean validateFields() {
         if (txtNome.getText().trim().isEmpty()) {
-            showAlert("Erro de Validação", "O campo 'Nome' é obrigatório.", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "O campo 'Nome' é obrigatório.", Alert.AlertType.ERROR);
             txtNome.requestFocus();
             return false;
         }
         if (txtDuracao.getText().trim().isEmpty()) {
-            showAlert("Erro de Validação", "O campo 'Duração' é obrigatório.", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "O campo 'Duração' é obrigatório.", Alert.AlertType.ERROR);
             txtDuracao.requestFocus();
             return false;
         }
         if (!txtDuracao.getText().trim().matches("^\\d{1,2}:\\d{2}$")) {
-            showAlert("Erro de Validação", "O formato da 'Duração' deve ser 'minutos:segundos' (ex: 3:45).", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "O formato da 'Duração' deve ser 'minutos:segundos' (ex: 3:45).", Alert.AlertType.ERROR);
             txtDuracao.requestFocus();
             return false;
         }
         if (dpDataLancamento.getValue() == null) {
-            showAlert("Erro de Validação", "O campo 'Data de Lançamento' é obrigatório.", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "O campo 'Data de Lançamento' é obrigatório.", Alert.AlertType.ERROR);
             dpDataLancamento.requestFocus();
             return false;
         }
         if (dpDataLancamento.getValue().isAfter(LocalDate.now())) {
-            showAlert("Erro de Validação", "A 'Data de Lançamento' não pode ser no futuro.", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "A 'Data de Lançamento' não pode ser no futuro.", Alert.AlertType.ERROR);
             dpDataLancamento.requestFocus();
             return false;
         }
         if (txtArtista.getText().trim().isEmpty()) {
-            showAlert("Erro de Validação", "O campo 'Artista' é obrigatório.", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "O campo 'Artista' é obrigatório.", Alert.AlertType.ERROR);
             txtArtista.requestFocus();
             return false;
         }
         if (txtAlbum.getText().trim().isEmpty()) {
-            showAlert("Erro de Validação", "O campo 'Álbum' é obrigatório.", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "O campo 'Álbum' é obrigatório.", Alert.AlertType.ERROR);
             txtAlbum.requestFocus();
             return false;
         }
         if (coverPath == null || coverPath.trim().isEmpty()) {
-            showAlert("Erro de Validação", "É obrigatório selecionar uma imagem de capa.", Alert.AlertType.ERROR);
+            ui.showAlert("Erro de Validação", "É obrigatório selecionar uma imagem de capa.", Alert.AlertType.ERROR);
             return false;
         }
         return true;
-    }
-
-    private Label createLabel(String text) {
-        Label label = new Label(text);
-        label.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-        label.setMaxWidth(Double.MAX_VALUE);
-        label.setAlignment(Pos.CENTER_LEFT);
-        return label;
-    }
-
-    private TextField createTextField(String prompt) {
-        TextField field = new TextField();
-        field.setPromptText(prompt);
-        field.setStyle(
-                "-fx-padding: 8 12;" +
-                        "-fx-background-radius: 5;" +
-                        "-fx-border-radius: 5;" +
-                        "-fx-background-color: #2e2e2e;" +
-                        "-fx-text-fill: white;"
-        );
-        return field;
-    }
-
-    private void showAlert(String title, String message, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-
-        DialogPane dialogPane = alert.getDialogPane();
-        if (dialogPane != null) {
-            dialogPane.setStyle("-fx-background-color: #2e2e2e;");
-            Node contentLabel = dialogPane.lookup(".content.label");
-            if (contentLabel != null) {
-                contentLabel.setStyle("-fx-text-fill: white;");
-            }
-            Node headerPanel = dialogPane.lookup(".header-panel");
-            if (headerPanel != null) {
-                headerPanel.setStyle("-fx-background-color: #212121;");
-                Node headerPanelLabel = headerPanel.lookup(".label");
-                if (headerPanelLabel != null) {
-                    headerPanelLabel.setStyle("-fx-text-fill: white;");
-                }
-            }
-            Node buttonBarNode = dialogPane.lookup(".button-bar");
-            if (buttonBarNode instanceof ButtonBar) {
-                ButtonBar buttonBar = (ButtonBar) buttonBarNode;
-                buttonBar.getButtons().forEach(b -> {
-                    b.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;");
-                    b.setOnMouseEntered(e -> b.setStyle("-fx-background-color: #1aa34a; -fx-text-fill: white; -fx-font-weight: bold;"));
-                    b.setOnMouseExited(e -> b.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-font-weight: bold;"));
-                });
-            }
-        }
-        alert.showAndWait();
     }
 }
